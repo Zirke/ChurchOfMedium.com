@@ -3,6 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tensorflow.keras.layers import Dense, Flatten, Conv2D, MaxPooling2D
 from tensorflow.keras import Model
+import os
+import datetime
 
 
 # Callback that stops training when it reaches a single
@@ -37,6 +39,8 @@ feature_description = {
     'image': tf.io.FixedLenFeature([], tf.string, default_value='')
 }
 
+checkpoint_path = "training_1/cp.ckpt"
+checkpoint_dir = os.path.dirname(checkpoint_path)
 
 # Extracting one sample at a time and returning an image and an associated label
 def decode(serialized_example):
@@ -68,12 +72,22 @@ batched_training_data = parsed_training_data.batch(BATCH_SIZE).repeat()
 batched_val_data = parsed_val_data.batch(BATCH_SIZE).repeat()
 batched_testing_data = parsed_testing_data.batch(BATCH_SIZE).repeat()
 
+batched_training_data = batched_training_data.shuffle(BATCH_SIZE)
 # initializing the callback
 callback = myCallback()
 
-#define the model for training
+tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir="", histogram_freq=1)
+cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,
+                                                 save_weights_only=True,
+                                                 verbose=1)
+
+# define the model for training
 model = tf.keras.models.Sequential([
-    tf.keras.layers.Conv2D(128, (3, 3), activation='relu', input_shape=(299, 299, 1)),
+    tf.keras.layers.Conv2D(16, (3, 3), activation='relu', input_shape=(299, 299, 1)),
+    tf.keras.layers.MaxPool2D(2, 2),
+    tf.keras.layers.Conv2D(32, (3, 3), activation='relu'),
+    tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
+    tf.keras.layers.Conv2D(128, (3, 3), activation='relu'),
     tf.keras.layers.MaxPool2D(2, 2),
     tf.keras.layers.Flatten(),
     tf.keras.layers.Dense(128, activation='relu'),
@@ -88,13 +102,12 @@ model.compile(optimizer='adam',
 # verbose is the progress bar when training
 history = model.fit(
     batched_training_data,
-    steps_per_epoch=1000 // BATCH_SIZE,
-    shuffle=True,
+    steps_per_epoch=300 // BATCH_SIZE,
     validation_data=batched_val_data,
-    validation_steps=300 // BATCH_SIZE,
+    validation_steps=100 // BATCH_SIZE,
     epochs=5,
     verbose=1,
-    callbacks=[callback]
+    callbacks=[callback, cp_callback, tensorboard_callback]
 )
 
 #print and plot history
@@ -115,17 +128,19 @@ results = model.evaluate(batched_testing_data, steps=300 // BATCH_SIZE)
 print('test loss, test acc:', results)
 
 # Make predictions for images in testing dataset
-for image, label in parsed_testing_data.take(50):
-    image = tf.reshape(image, [-1, 299, 299, 1])
+for image, label in batched_training_data.take(10):
+    # image = tf.reshape(image, [-1, 299, 299, 1])
     predictions = model.predict(image.numpy())
-    image = tf.reshape(image, [299, 299])
-    plt.imshow(image.numpy(), cmap=plt.cm.binary)
+    # image = tf.reshape(image, [299, 299])
+    conv = image.numpy()[0]
+    conv = tf.reshape(conv, [299, 299])
+    plt.imshow(conv, cmap=plt.cm.binary)
     plt.xlabel('True Value: %s,\n Predicted Values:'
                '\nNegative:                [%0.2f], '
                '\nBenign Calcification:    [%0.2f]'
                '\nBenign Mass:             [%0.2f]'
                '\nMalignant Calcification: [%0.2f]'
-               '\nMalignant Mass:          [%0.2f]' % (class_names[label.numpy()],
+               '\nMalignant Mass:          [%0.2f]' % (class_names[label.numpy()[0]],
                                                        predictions[0, 0],
                                                        predictions[0, 1],
                                                        predictions[0, 2],
