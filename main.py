@@ -76,7 +76,7 @@ batched_training_data = batched_training_data.shuffle(BATCH_SIZE)
 # initializing the callback
 callback = myCallback()
 
-tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir="", histogram_freq=1)
+tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir="log", histogram_freq=1)
 cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,
                                                  save_weights_only=True,
                                                  verbose=1)
