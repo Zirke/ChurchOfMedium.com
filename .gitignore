@@ -111,3 +111,5 @@ venv.bak/
 /cv10_data/
 /cv10_labels.npy
 /test10_labels.npy
+/trained_Models/
+/logs/

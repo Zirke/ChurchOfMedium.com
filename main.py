@@ -5,21 +5,19 @@ from tensorflow.keras.layers import Dense, Flatten, Conv2D, MaxPooling2D
 from tensorflow.keras import Model
 import os
 from callback import *
-from datapreprocess import *
+from data_preprocess import *
+from post_processing import *
 
-FILE_SIZE = 7305 #Training dataset size
-TEST_SIZE = 500 # Validation and test dataset size
+FILE_SIZE = 7305  # Training dataset size
+TEST_SIZE = 500  # Validation and test dataset size
 BATCH_SIZE = 32
 
-# Multi-label names
-class_names = ['Negative', 'Benign calcification', 'Benign mass', 'Malignant calcification', 'Malignant mass']
-
-#Get datasets for training, validation, and testing
+# Get datasets for training, validation, and testing
 parsed_training_data, parsed_val_data, parsed_testing_data = process_dataset()
 
 # batching the dataset into 32-size minibatches
 batched_training_data = parsed_training_data.batch(BATCH_SIZE).repeat()
-batched_training_data = batched_training_data.shuffle(FILE_SIZE).repeat()
+batched_training_data = batched_training_data.shuffle(100).repeat()
 batched_val_data = parsed_val_data.batch(BATCH_SIZE).repeat()
 batched_testing_data = parsed_testing_data.batch(BATCH_SIZE).repeat()
 
@@ -48,52 +46,24 @@ model.compile(optimizer='adam',
 
 history = model.fit(
     batched_training_data,
-    steps_per_epoch= FILE_SIZE // BATCH_SIZE,
+    steps_per_epoch=100 // BATCH_SIZE,
     validation_data=batched_val_data,
-    validation_steps=TEST_SIZE // BATCH_SIZE,
-    epochs=5,
-    verbose=1, # verbose is the progress bar when training
+    validation_steps=100 // BATCH_SIZE,
+    epochs=1,
+    verbose=1,  # verbose is the progress bar when training
     callbacks=[callback, cp_callback, tb_callback]
 )
 
-#print and plot history
-print('\nhistory dict:', history.history)
-
-plt.plot(history.history['accuracy'], label='accuracy')
-plt.plot(history.history['val_accuracy'], label='val_accuracy')
-plt.xlabel('Epoch')
-plt.ylabel('Accuracy')
-plt.ylim([0.5, 1])
-plt.legend(loc='lower right')
-
-plt.show()
 
 # Evaluate the model on unseen testing data
 print('\n# Evaluate on test data')
-results = model.evaluate(batched_testing_data, steps=TEST_SIZE // BATCH_SIZE)
+results = model.evaluate(batched_testing_data, steps=100 // BATCH_SIZE)
 print('test loss, test acc:', results)
 
-# Make predictions for images in testing dataset
-for image, label in batched_training_data.take(10):
-    # image = tf.reshape(image, [-1, 299, 299, 1])
-    predictions = model.predict(image.numpy())
-    # image = tf.reshape(image, [299, 299])
-    conv = image.numpy()[0]
-    conv = tf.reshape(conv, [299, 299])
-    plt.imshow(conv, cmap=plt.cm.binary)
-    plt.xlabel('True Value: %s,\n Predicted Values:'
-               '\nNegative:                [%0.2f], '
-               '\nBenign Calcification:    [%0.2f]'
-               '\nBenign Mass:             [%0.2f]'
-               '\nMalignant Calcification: [%0.2f]'
-               '\nMalignant Mass:          [%0.2f]' % (class_names[label.numpy()[0]],
-                                                       predictions[0, 0],
-                                                       predictions[0, 1],
-                                                       predictions[0, 2],
-                                                       predictions[0, 3],
-                                                       predictions[0, 4]
-                                                       ))
-    plt.show()
+# History displaying training and validation accuracy
+plot_history(history)
+
+plot_multi_label_predictions(batched_testing_data, model, 10)
 
 #######################################################
 # class MyModel(Model):
