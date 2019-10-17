@@ -114,3 +114,7 @@ venv.bak/
 
 # Mac specific
 .DS_Store
+
+/trained_Models/
+/logs/
+
