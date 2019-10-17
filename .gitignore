@@ -111,3 +111,6 @@ venv.bak/
 /cv10_data/
 /cv10_labels.npy
 /test10_labels.npy
+
+# Mac specific
+.DS_Store
