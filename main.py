@@ -1,5 +1,5 @@
-from data_preprocess import *
-from post_processing import *
+from Data_Processing.pre_processing import *
+from Data_Processing.post_processing import *
 from Models.sequential_model import *
 from Models.Model_Version_1_01 import *
 
@@ -12,9 +12,9 @@ BATCH_SIZE = 32
 parsed_training_data, parsed_val_data, parsed_testing_data = process_dataset()
 
 # batching the dataset into 32-size minibatches
-batched_training_data = parsed_training_data.batch(BATCH_SIZE)                   # BATCH_SIZE
-batched_val_data = parsed_val_data.batch(BATCH_SIZE)                             # BATCH_SIZE
-batched_testing_data = parsed_testing_data.batch(BATCH_SIZE)                       # BATCH_SIZE
+batched_training_data = parsed_training_data.batch(BATCH_SIZE).repeat()                   # BATCH_SIZE
+batched_val_data = parsed_val_data.batch(BATCH_SIZE).repeat()                             # BATCH_SIZE
+batched_testing_data = parsed_testing_data.batch(BATCH_SIZE).repeat()                      # BATCH_SIZE
 
 # initializing the callback
 callback = myCallback()

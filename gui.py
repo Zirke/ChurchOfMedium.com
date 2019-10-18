@@ -1,6 +1,5 @@
 import random
 import sys
-from post_processing import *
 
 from PyQt5.QtWidgets import QApplication, QMainWindow, QSizePolicy
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
