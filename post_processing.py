@@ -4,7 +4,8 @@ import matplotlib.pyplot as plt
 # Multi-label names
 class_names = ['Negative', 'Benign calcification', 'Benign mass', 'Malignant calcification', 'Malignant mass']
 
-#print and plot history
+
+# print and plot history
 def plot_history(history):
     print('\nhistory dict:', history.history)
 
@@ -25,17 +26,17 @@ def plot_multi_label_predictions(batched_testing_data, model, n):
         converted_image = tf.reshape(image.numpy()[0], [299, 299])
         plt.imshow(converted_image, cmap=plt.cm.binary)
         plt.xlabel('True Value: %s,\n Predicted Values:'
-               '\nNegative:                [%0.2f], '
-               '\nBenign Calcification:    [%0.2f]'
-               '\nBenign Mass:             [%0.2f]'
-               '\nMalignant Calcification: [%0.2f]'
-               '\nMalignant Mass:          [%0.2f]' % (class_names[label.numpy()[0]],
-                                                       predictions[0, 0],
-                                                       predictions[0, 1],
-                                                       predictions[0, 2],
-                                                       predictions[0, 3],
-                                                       predictions[0, 4]
-                                                       ))
+                   '\nNegative:                [%0.2f], '
+                   '\nBenign Calcification:    [%0.2f]'
+                   '\nBenign Mass:             [%0.2f]'
+                   '\nMalignant Calcification: [%0.2f]'
+                   '\nMalignant Mass:          [%0.2f]' % (class_names[label.numpy()[0]],
+                                                           predictions[0, 0],
+                                                           predictions[0, 1],
+                                                           predictions[0, 2],
+                                                           predictions[0, 3],
+                                                           predictions[0, 4]
+                                                           ))
         plt.show()
 
 
@@ -46,8 +47,8 @@ def plot_binary_label_predictions(batched_testing_data, model):
         converted_image = tf.reshape(image.numpy()[0], [299, 299])
         plt.imshow(converted_image, cmap=plt.cm.cool)
         plt.xlabel('True Value: %s,'
-               '\n Predicted Values:'
-               '\nChance of cancer [%0.2f], '
-               '\n ' % (class_names[label.numpy()[0]], predictions[0,0]*100))
+                   '\n Predicted Values:'
+                   '\nProbability of cancer [%0.2f], '
+                   '\n ' % (class_names[label.numpy()[0]], predictions[0, 0] * 100))
 
         plt.show()
