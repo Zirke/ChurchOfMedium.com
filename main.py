@@ -1,23 +1,23 @@
-from Data_Processing.pre_processing import *
 from Data_Processing.post_processing import *
 from Models.sequential_model import *
 from Models.Model_Version_1_01 import *
-from Data_Processing.sorting_tfrecords import *
-from Data_Processing.binary_pre_processing import *
-
-# The two lines below create a new file with negative/others with even distribution and loads it into a dataset. 
-# negative_binary_classification()
-# dataset = process_data()
+from sorting_hub import *
 
 # When changes are made to the constants, changes need to be done in sequential_model as well
-FILE_SIZE = 7305  # Training dataset size
-TEST_SIZE = 500  # Validation and test dataset size
-BATCH_SIZE = 32
 
-# Get datasets for training, validation, and testing
+"""
+Get datasets for training, validation, and testing
+process_data(file_path) gives a binary classification dataset, list of all file paths in sorting_hub
+process_dataset() gives dataset for 5 classes dataset 
+"""
+
 parsed_training_data, parsed_val_data, parsed_testing_data = process_dataset()
 
-# batching the dataset into 32-size minibatches
+FILE_SIZE = len(list(parsed_training_data))  # Training dataset size
+TEST_SIZE = len(list(parsed_val_data))  # Validation and test dataset size
+BATCH_SIZE = 32
+
+# batching the dataset into 32-size mini-batches
 batched_training_data = parsed_training_data.batch(BATCH_SIZE)  # BATCH_SIZE
 batched_val_data = parsed_val_data.batch(BATCH_SIZE).repeat()                             # BATCH_SIZE
 batched_testing_data = parsed_testing_data.batch(BATCH_SIZE).repeat()                      # BATCH_SIZE
@@ -53,5 +53,5 @@ if __name__ == '__main__':
     sub.model().summary()
 
 # History displaying training and validation accuracy
-plot_multi_label_predictions(batched_testing_data, model, 10)
+plot_binary_label_predictions(batched_testing_data, model, 10)
 plot_history(history)

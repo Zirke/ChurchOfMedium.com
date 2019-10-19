@@ -40,8 +40,8 @@ def plot_multi_label_predictions(batched_testing_data, model, n):
         plt.show()
 
 
-def plot_binary_label_predictions(batched_testing_data, model):
-    for image, label in batched_testing_data.take(10):
+def plot_binary_label_predictions(batched_testing_data, model, n):
+    for image, label in batched_testing_data.take(n):
         predictions = model.predict(image.numpy())
 
         converted_image = tf.reshape(image.numpy()[0], [299, 299])
