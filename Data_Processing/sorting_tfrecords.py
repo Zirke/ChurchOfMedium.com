@@ -24,9 +24,17 @@ def get_full_dataset():
     return tf.data.TFRecordDataset(path_files)
 
 
+def decode_low(serialized_example):
+    feature = tf.io.parse_single_example(serialized_example, feature_description)
+    image = tf.io.decode_raw(feature['image'], tf.uint8)
+    label = feature['label_normal']
+
+    return image, label
+
+
 def negative_binary_classification():
     dataset = get_full_dataset()
-    parsed_data = dataset.map(decode)
+    parsed_data = dataset.map(decode_low)
 
     image_array, label_array, n_non_neg = length_and_non_negative_arrays(parsed_data)
     negative_images, negative_labels = negative_image_array(parsed_data, n_non_neg)
@@ -37,6 +45,7 @@ def negative_binary_classification():
         label_array.append(label)
 
     features_dataset = tf.data.Dataset.from_tensor_slices((image_array, label_array))
+
     serialized_dataset = features_dataset.map(tf_serialize_example)
 
     def generator():
@@ -85,11 +94,15 @@ def tf_serialize_example(image, label):
 # Creates a tf.Example message ready to be written to a file.
 def serialize_example(image, label):
     feature = {
-        'image': _float_feature(image),
+        'image': _bytes_feature(image),
         'label': _int64_feature(label),
     }
     example_proto = tf.train.Example(features=tf.train.Features(feature=feature))
     return example_proto.SerializeToString()
+
+
+def serialize_tensor(image):
+    return tf.io.serialize_tensor(image)
 
 
 def _int64_feature(value):
@@ -97,6 +110,12 @@ def _int64_feature(value):
     return tf.train.Feature(int64_list=tf.train.Int64List(value=[value]))
 
 
-def _float_feature(value):
-    """Returns a float_list from a float / double."""
-    return tf.train.Feature(float_list=tf.train.FloatList(value=value.numpy().reshape(-1)))
+def _int2_feature(value):
+    """Returns an int64_list from a bool / enum / int / uint."""
+    return tf.train.Feature(int64_list=tf.train.Int64List(value=value.numpy().reshape(-1)))
+
+
+def _bytes_feature(value):
+    value = value.numpy().tostring()
+    """Returns a bytes_list from a string / byte."""
+    return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))

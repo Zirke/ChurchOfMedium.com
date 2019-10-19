@@ -2,6 +2,12 @@ from Data_Processing.pre_processing import *
 from Data_Processing.post_processing import *
 from Models.sequential_model import *
 from Models.Model_Version_1_01 import *
+from Data_Processing.sorting_tfrecords import *
+from Data_Processing.binary_pre_processing import *
+
+# The two lines below create a new file with negative/others with even distribution and loads it into a dataset. 
+# negative_binary_classification()
+# dataset = process_data()
 
 # When changes are made to the constants, changes need to be done in sequential_model as well
 FILE_SIZE = 7305  # Training dataset size
@@ -12,7 +18,7 @@ BATCH_SIZE = 32
 parsed_training_data, parsed_val_data, parsed_testing_data = process_dataset()
 
 # batching the dataset into 32-size minibatches
-batched_training_data = parsed_training_data.batch(BATCH_SIZE).repeat()                   # BATCH_SIZE
+batched_training_data = parsed_training_data.batch(BATCH_SIZE)  # BATCH_SIZE
 batched_val_data = parsed_val_data.batch(BATCH_SIZE).repeat()                             # BATCH_SIZE
 batched_testing_data = parsed_testing_data.batch(BATCH_SIZE).repeat()                      # BATCH_SIZE
 
