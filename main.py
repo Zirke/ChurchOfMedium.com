@@ -7,8 +7,8 @@ from Models.Model_version_1_02 import *
 from sorting_hub import *
 from callback import *
 from Data_Processing.processing import *
-from tensorflow.compat.v1 import ConfigProto
-from tensorflow.compat.v1 import InteractiveSession
+#from tensorflow.compat.v1 import ConfigProto
+#from tensorflow.compat.v1 import InteractiveSession
 
 """
 Get datasets for training, validation, and testing
@@ -16,9 +16,9 @@ process_data(file_path) gives a binary classification dataset, list of all file 
 process_dataset() gives dataset for 5 classes dataset 
 """
 
-config = ConfigProto()
-config.gpu_options.allow_growth = True
-session = InteractiveSession(config=config)
+#config = ConfigProto()
+#config.gpu_options.allow_growth = True
+#session = InteractiveSession(config=config)
 
 parsed_training_data, parsed_val_data, parsed_testing_data = process_data(negative_bi_file_paths)
 

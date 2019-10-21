@@ -13,7 +13,7 @@ class Model_Version_1_02(tf.keras.Model):
                                      )
         # first convolutional layer
         self.conv1 = Conv2D(32,  # filters
-                            (3, 3),  # Kernel size
+                            (3, 3),  # Kernel sizew
                             strides=(1, 1),  # Stride
                             padding='valid',  # Same refers to same padding as previous layer.
                             data_format=None,
@@ -55,7 +55,63 @@ class Model_Version_1_02(tf.keras.Model):
                             )
 
         # 3rd convolutional layer
-        self.conv3 = Conv2D(128,  # filters
+        self.conv3 = Conv2D(64,  # filters
+                            (3, 3),  # Kernel size
+                            strides=(1, 1),  # Stride
+                            padding='same',  # Same refers to same padding as previous layer.
+                            data_format=None,
+                            # It should be defined if the dimensions are structured in non standard approach
+                            dilation_rate=(1, 1),  # how dilated the picture is
+                            activation='relu',  # Activation function
+                            use_bias=True,  # Enable bias
+                            kernel_initializer='glorot_uniform',  # initialiser of filters
+                            bias_initializer='zeros',  # initialisation of bias
+                            kernel_regularizer=None,  #
+                            bias_regularizer=None,  #
+                            activity_regularizer=None,  #
+                            kernel_constraint=None,  #
+                            bias_constraint=None,  #
+                            )
+
+        # 4th convolutional layer
+        self.conv4 = Conv2D(64,  # filters
+                            (3, 3),  # Kernel size
+                            strides=(1, 1),  # Stride
+                            padding='same',  # Same refers to same padding as previous layer.
+                            data_format=None,
+                            # It should be defined if the dimensions are structured in non standard approach
+                            dilation_rate=(1, 1),  # how dilated the picture is
+                            activation='relu',  # Activation function
+                            use_bias=True,  # Enable bias
+                            kernel_initializer='glorot_uniform',  # initialiser of filters
+                            bias_initializer='zeros',  # initialisation of bias
+                            kernel_regularizer=None,  #
+                            bias_regularizer=None,  #
+                            activity_regularizer=None,  #
+                            kernel_constraint=None,  #
+                            bias_constraint=None,  #
+                            )
+
+        # 5th convolutional layer
+        self.conv5 = Conv2D(128,  # filters
+                            (3, 3),  # Kernel size
+                            strides=(1, 1),  # Stride
+                            padding='same',  # Same refers to same padding as previous layer.
+                            data_format=None,
+                            # It should be defined if the dimensions are structured in non standard approach
+                            dilation_rate=(1, 1),  # how dilated the picture is
+                            activation='relu',  # Activation function
+                            use_bias=True,  # Enable bias
+                            kernel_initializer='glorot_uniform',  # initialiser of filters
+                            bias_initializer='zeros',  # initialisation of bias
+                            kernel_regularizer=None,  #
+                            bias_regularizer=None,  #
+                            activity_regularizer=None,  #
+                            kernel_constraint=None,  #
+                            bias_constraint=None,  #
+                            )
+        # 6th convolutional layer
+        self.conv6 = Conv2D(256,  # filters
                             (3, 3),  # Kernel size
                             strides=(1, 1),  # Stride
                             padding='same',  # Same refers to same padding as previous layer.
@@ -81,7 +137,7 @@ class Model_Version_1_02(tf.keras.Model):
         self.flatten = Flatten()
 
         # Dense is a fully connected layer
-        self.d1 = Dense(16,  # Amount of neurons
+        self.d1 = Dense(64,  # Amount of neurons
                         activation='relu',  # Activation function
                         use_bias=True,  # bias is enabled
                         bias_initializer='zeros',  # initialisation of bias
@@ -90,7 +146,7 @@ class Model_Version_1_02(tf.keras.Model):
                         bias_constraint=None)  #
 
         # Dense is a fully connected layer
-        self.d2 = Dense(16,  # Amount of neurons
+        self.d2 = Dense(64,  # Amount of neurons
                         activation='relu',  # Activation function
                         use_bias=True,  # bias is enabled
                         bias_initializer='zeros',  # initialisation of bias
@@ -111,9 +167,13 @@ class Model_Version_1_02(tf.keras.Model):
         x = self.padding(x)
         x = self.conv1(x)
         x = self.maxpool1(x)
-        #x = self.conv2(x)
-        #x = self.conv3(x)
-        #x = self.maxpool2(x)
+        x = self.conv2(x)
+        x = self.conv3(x)
+        x = self.maxpool2(x)
+        x = self.conv4(x)
+        x = self.conv5(x)
+        x = self.conv6(x)
+        x = self.maxpool1(x)
         x = self.flatten(x)
         x = self.d1(x)
         x = self.d2(x)
