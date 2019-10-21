@@ -1,5 +1,5 @@
-import tensorflow as tf
 import matplotlib.pyplot as plt
+import tensorflow as tf
 
 # Multi-label names
 class_names = ['Negative', 'Benign calcification', 'Benign mass', 'Malignant calcification', 'Malignant mass']

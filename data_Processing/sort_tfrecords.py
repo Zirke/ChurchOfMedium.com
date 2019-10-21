@@ -1,12 +1,9 @@
-import tensorflow as tf
-from Data_Processing.pre_processing import *
-import numpy as np
-from Data_Processing.negative_sort import *
-from Data_Processing.benign_cal_split import *
-from Data_Processing.benign_mass_split import *
-from Data_Processing.malignant_cal_split import *
-from Data_Processing.malignant_mass_split import *
-import random
+from data_Processing.benign_cal_split import *
+from data_Processing.benign_mass_split import *
+from data_Processing.malignant_cal_split import *
+from data_Processing.malignant_mass_split import *
+from data_Processing.negative_sort import *
+from data_Processing.pre_processing import *
 
 """
 Purpose of this file is to read the ORIGINAL tfrecords and produce new ones based on sorting. 

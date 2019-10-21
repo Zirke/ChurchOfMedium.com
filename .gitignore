@@ -113,3 +113,4 @@ venv.bak/
 /test10_labels.npy
 /trained_Models/
 /logs/
+/sorted_tfrecords/

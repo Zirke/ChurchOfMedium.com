@@ -1,6 +1,6 @@
 import tensorflow as tf
-from tensorflow.keras.layers import Dense, Flatten, Conv2D, MaxPooling2D, ZeroPadding2D, Input
 from tensorflow.keras import Model
+from tensorflow.keras.layers import Dense, Flatten, Conv2D, MaxPooling2D, ZeroPadding2D, Input
 
 
 class Model_Version_1_01(tf.keras.Model):
