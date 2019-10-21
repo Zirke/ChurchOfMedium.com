@@ -1,12 +1,5 @@
-rom
-data_Processing.post_processing
-import *
-from data_Processing.pre_processing import *
 # from models.sequential_model import *
-from models.Model_Version_1_01 import *
-from models.Model_version_1_02 import *
 #from sorting_hub import *
-from callback import *
 # from sorting_hub import *
 from callback import *
 from data_Processing.post_processing import *
@@ -19,6 +12,8 @@ from models.Model_version_1_02 import *
 Get datasets for training, validation, and testing
 process_data(file_path) gives a binary classification dataset, list of all file paths in sorting_hub
 process_dataset() gives dataset for 5 classes dataset 
+
+from data_Processing.binary_pre_processing import *
 """
 
 parsed_training_data, parsed_val_data, parsed_testing_data = process_dataset()
@@ -28,7 +23,7 @@ TEST_SIZE = len(list(parsed_val_data))                                          
 BATCH_SIZE = 32
 
 # batching the dataset into 32-size mini-batches
-batched_training_data = parsed_training_data.batch(BATCH_SIZE)                            # BATCH_SIZE
+batched_training_data = parsed_training_data.batch(BATCH_SIZE).repeat()  # BATCH_SIZE
 batched_val_data = parsed_val_data.batch(BATCH_SIZE).repeat()                             # BATCH_SIZE
 batched_testing_data = parsed_testing_data.batch(BATCH_SIZE).repeat()                     # BATCH_SIZE
 
