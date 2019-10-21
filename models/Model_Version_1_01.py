@@ -12,7 +12,7 @@ class Model_Version_1_01(tf.keras.Model):
                                      data_format='channels_last',  # format of batch, height, width, channels
                                      )
         # first convolutional layer
-        self.conv1 = Conv2D(16,  # filters
+        self.conv1 = Conv2D(32,  # filters
                             (3, 3),  # Kernel size
                             strides=(1, 1),  # Stride
                             padding='valid',  # Same refers to same padding as previous layer.
@@ -36,7 +36,7 @@ class Model_Version_1_01(tf.keras.Model):
                                      data_format=None)  #
 
         # Second convolutional layer
-        self.conv2 = Conv2D(32,  # filters
+        self.conv2 = Conv2D(64,  # filters
                             (3, 3),  # Kernel size
                             strides=(1, 1),  # Stride
                             padding='same',  # Same refers to same padding as previous layer.
@@ -55,7 +55,7 @@ class Model_Version_1_01(tf.keras.Model):
                             )
 
         # 3rd convolutional layer
-        self.conv3 = Conv2D(48,  # filters
+        self.conv3 = Conv2D(128,  # filters
                             (3, 3),  # Kernel size
                             strides=(1, 1),  # Stride
                             padding='same',  # Same refers to same padding as previous layer.
