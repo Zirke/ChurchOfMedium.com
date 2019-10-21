@@ -1,8 +1,6 @@
 import tensorflow as tf
 from callback import *
-FILE_SIZE = 7305  # Training dataset size
-TEST_SIZE = 500  # Validation and test dataset size
-BATCH_SIZE = 32
+from main import FILE_SIZE,TEST_SIZE,BATCH_SIZE
 
 def create_model(batched_training_data,batched_val_data,callback, cp_callback, tb_callback):
     # initializing the callback

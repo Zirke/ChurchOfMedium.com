@@ -1,9 +1,11 @@
 from Data_Processing.post_processing import *
-from Models.sequential_model import *
+from Data_Processing.pre_processing import *
+#from Models.sequential_model import *
 from Models.Model_Version_1_01 import *
-from sorting_hub import *
-
-# When changes are made to the constants, changes need to be done in sequential_model as well
+from Models.Model_version_1_02 import *
+#from sorting_hub import *
+from callback import *
+from Data_Processing.processing import *
 
 """
 Get datasets for training, validation, and testing
@@ -13,21 +15,21 @@ process_dataset() gives dataset for 5 classes dataset
 
 parsed_training_data, parsed_val_data, parsed_testing_data = process_dataset()
 
-FILE_SIZE = len(list(parsed_training_data))  # Training dataset size
-TEST_SIZE = len(list(parsed_val_data))  # Validation and test dataset size
+FILE_SIZE = len(list(parsed_training_data))                                             # Training dataset size
+TEST_SIZE = len(list(parsed_val_data))                                                  # Validation and test dataset size
 BATCH_SIZE = 32
 
 # batching the dataset into 32-size mini-batches
-batched_training_data = parsed_training_data.batch(BATCH_SIZE)  # BATCH_SIZE
+batched_training_data = parsed_training_data.batch(BATCH_SIZE)                            # BATCH_SIZE
 batched_val_data = parsed_val_data.batch(BATCH_SIZE).repeat()                             # BATCH_SIZE
-batched_testing_data = parsed_testing_data.batch(BATCH_SIZE).repeat()                      # BATCH_SIZE
+batched_testing_data = parsed_testing_data.batch(BATCH_SIZE).repeat()                     # BATCH_SIZE
 
 # initializing the callback
 callback = myCallback()
 tb_callback = tensorboard_callback("logs", 1)
 cp_callback = checkpoint_callback()
 
-model = Model_Version_1_01()
+model = Model_Version_1_02()
 model.compile(optimizer='adam',
               loss='sparse_categorical_crossentropy',
               metrics=['accuracy'])

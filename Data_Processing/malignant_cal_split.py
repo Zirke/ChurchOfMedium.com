@@ -1,5 +1,5 @@
 import tensorflow as tf
-
+from Data_Processing.processing import shuffle
 """
 Purpose of this file is to find the malignant calcification in the original dataset and
 create a binary split between malignant calcification and the other categories. 
@@ -12,7 +12,7 @@ of the 2/3rd only 20% of 1/3rd can be negative
 def malignant_cal_split(parsed_data):
     image_array, label_array, n_malignant = length_and_malignant_arrays(parsed_data)
     non_malignant_imgs, non_malignant_lbls = non_malignant_images(parsed_data, n_malignant)
-
+    non_malignant_imgs, non_malignant_lbls = shuffle(non_malignant_imgs, non_malignant_lbls, len(non_malignant_imgs))
     for image in non_malignant_imgs:
         image_array.append(image)
     for label in non_malignant_lbls:

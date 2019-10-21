@@ -6,6 +6,7 @@ from Data_Processing.benign_cal_split import *
 from Data_Processing.benign_mass_split import *
 from Data_Processing.malignant_cal_split import *
 from Data_Processing.malignant_mass_split import *
+import random
 
 """
 Purpose of this file is to read the ORIGINAL tfrecords and produce new ones based on sorting. 
@@ -85,7 +86,11 @@ def binary_classification(file_paths, sorting_algorithm):
                                                                                             amount_of_imgs)
     testing_images, testing_labels, image_array, label_array = five_percent_to_arrays(image_array, label_array,
                                                                                       amount_of_imgs)
+    #Manual shuffle
+    testing_images, testing_labels = shuffle(testing_images, testing_labels, len(testing_images))
+    validation_images,validation_labels = shuffle(validation_images,validation_labels, len(validation_images))
 
+    image_array, label_array = shuffle(image_array, label_array, len(image_array))
     training_dataset = tf.data.Dataset.from_tensor_slices((image_array, label_array))
     validation_dataset = tf.data.Dataset.from_tensor_slices((validation_images, validation_labels))
     testing_dataset = tf.data.Dataset.from_tensor_slices((testing_images, testing_labels))

@@ -1,5 +1,5 @@
 import tensorflow as tf
-
+from Data_Processing.processing import  shuffle
 """
 Purpose of this file is to find the benign mass in the original dataset and
 create a binary split between benign mass and the other categories. 
@@ -12,7 +12,7 @@ of the 2/3rd only 20% of 1/3rd can be negative
 def benign_mass_split(parsed_data):
     image_array, label_array, n_benign = length_and_benign_arrays(parsed_data)
     non_benign_imgs, non_benign_lbls = non_benign_images(parsed_data, n_benign)
-
+    non_benign_imgs,non_benign_lbls = shuffle(non_benign_imgs,non_benign_lbls, len(non_benign_imgs))
     for image in non_benign_imgs:
         image_array.append(image)
     for label in non_benign_lbls:
