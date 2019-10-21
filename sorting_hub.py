@@ -36,16 +36,16 @@ malignant_mass_split_paths = ['sorted_tfrecords/malignant_mass_split_training.tf
                               'sorted_tfrecords/malignant_mass_split_test.tfrecord']
 
 # Creates 3 files of NEGATIVE, train, val, test. Roughly ~1.2gb data.
-binary_classification(negative_bi_file_paths, sorting_algorithms[0])
+#binary_classification(negative_bi_file_paths, sorting_algorithms[0])
 
 # Creates 3 files of BENIGN CALCIFICATION, train, val, test. Roughly ~500mb data.
-binary_classification(benign_cal_split_paths, sorting_algorithms[1])
+#binary_classification(benign_cal_split_paths, sorting_algorithms[1])
 
 # Creates 3 files of BENIGN MASS, train, val, test. Roughly ~500mb data.
-binary_classification(benign_mass_split_paths, sorting_algorithms[2])
+#binary_classification(benign_mass_split_paths, sorting_algorithms[2])
 
 # Creates 3 files of BENIGN MASS, train, val, test. Roughly ~500mb data.
-binary_classification(malignant_cal_split_paths, sorting_algorithms[3])
+#binary_classification(malignant_cal_split_paths, sorting_algorithms[3])
 
 # Creates 3 files of BENIGN MASS, train, val, test. Roughly ~500mb data.
-binary_classification(malignant_mass_split_paths, sorting_algorithms[4])
+#binary_classification(malignant_mass_split_paths, sorting_algorithms[4])

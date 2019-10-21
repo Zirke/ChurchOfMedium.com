@@ -45,7 +45,7 @@ def plot_binary_label_predictions(batched_testing_data, model, n):
         predictions = model.predict(image.numpy())
 
         converted_image = tf.reshape(image.numpy()[0], [299, 299])
-        plt.imshow(converted_image, cmap=plt.cm.cool)
+        plt.imshow(converted_image, cmap=plt.cm.binary)
         plt.xlabel('True Value: %s,'
                    '\n Predicted Values:'
                    '\nProbability of cancer [%0.2f], '
