@@ -5,8 +5,9 @@ from PIL import Image
 from PyQt5 import QtGui
 from PyQt5.Qt import Qt
 from PyQt5.QtChart import QChart, QChartView, QBarCategoryAxis, QBarSet, QBarSeries, QValueAxis
-from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtWidgets import QApplication, QWidget, QFileDialog, QLabel, QVBoxLayout, QPushButton, QHBoxLayout
+from PyQt5.QtCore import pyqtSlot, QDir
+from PyQt5.QtWidgets import QApplication, QWidget, QFileDialog, QLabel, QVBoxLayout, QPushButton, QHBoxLayout, \
+    QFileSystemModel, QTreeView
 
 from models.Model_Version_1_01 import *
 
@@ -76,39 +77,56 @@ class App(QWidget):
         self.chart.legend().setAlignment(Qt.AlignBottom)
         self.chartView = QChartView(self.chart)
         self.chartView.setMaximumSize(600, 320)
-        self.chartView.setMinimumSize(600, 320)
+
+        self.directory = QFileSystemModel()
+        self.index = self.directory.index(QDir.currentPath())
+        self.tree = QTreeView(parent=self)
+        self.tree.setModel(self.directory)
+        self.tree.expand(self.index)
+        self.tree.setAnimated(False)
+        self.tree.setIndentation(20)
+        self.tree.setSortingEnabled(True)
 
         # Button to open new picture file
-        button = QPushButton('Open New Image', self)
-        button.setMaximumSize(140, 30)
-        button.clicked.connect(self.on_click)
+        self.button = QPushButton('Open New Image', self)
+        self.button.setMaximumSize(140, 30)
+        self.button.clicked.connect(self.on_click)
 
         # Layout handling. All widgets gets added to the vbox.
-        hbox = QHBoxLayout()
-        hbox.addWidget(self.picture_label)
-        hbox.addWidget(self.chartView, alignment=Qt.AlignLeft | Qt.AlignCenter)
+        hbox_top = QHBoxLayout()
+        hbox_buttom = QHBoxLayout()
+
+        hbox_top.addWidget(self.tree)
+        hbox_top.addWidget(self.picture_label)
+        hbox_buttom.addWidget(self.chartView, alignment=Qt.AlignLeft | Qt.AlignCenter)
 
         vbox = QVBoxLayout()
-        vbox.addLayout(hbox)
-        vbox.addWidget(self.label_negative)
-        vbox.addWidget(self.label_benign_cal)
-        vbox.addWidget(self.label_benign_mass)
-        vbox.addWidget(self.label_malignant_cal)
-        vbox.addWidget(self.label_malignant_mass)
-        vbox.addWidget(button)
+        vbox_inside = QVBoxLayout()
 
+        vbox.addLayout(hbox_top)
+        vbox.addLayout(hbox_buttom)
+
+        vbox_inside.addWidget(self.label_negative)
+        vbox_inside.addWidget(self.label_benign_cal)
+        vbox_inside.addWidget(self.label_benign_mass)
+        vbox_inside.addWidget(self.label_malignant_cal)
+        vbox_inside.addWidget(self.label_malignant_mass)
+        hbox_buttom.addLayout(vbox_inside)
+        vbox.addWidget(self.button)
         self.setLayout(vbox)
-        self.setAutoFillBackground(True)
+
         p = self.palette()
         p.setColor(self.backgroundRole(), Qt.white)
         self.setPalette(p)
-        # self.resize(vbox.width(), vbox.height())
+        self.setFixedSize(self.size())
         self.show()
 
     @pyqtSlot()
     def on_click(self):
-        new_picture, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "Vælg Billede",
-                                                     "All Files (*);;Python Files (*.py)")
+        # new_picture, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "Vælg Billede",
+        #         #                                              "All Files (*);;Python Files (*.py)")
+        new_picture = self.tree.get
+
         model = self.getModel()
         new_prediction = self.makePrediction(model, self.convertPictureToNumpy(new_picture))
         self.picture_label.setPixmap(QtGui.QPixmap(new_picture))
