@@ -73,6 +73,11 @@ class Model_Version_1_02(tf.keras.Model):
                             bias_constraint=None,  #
                             )
 
+        self.maxpool2 = MaxPooling2D(pool_size=(2, 2),  # pool size
+                                     strides=(2, 2),  # stride size
+                                     padding='same',  # padding
+                                     data_format=None)  #
+
         # 4th convolutional layer
         self.conv4 = Conv2D(64,  # filters
                             (3, 3),  # Kernel size
@@ -129,7 +134,7 @@ class Model_Version_1_02(tf.keras.Model):
                             bias_constraint=None,  #
                             )
 
-        self.maxpool2 = MaxPooling2D(pool_size=(2, 2),  # pool size
+        self.maxpool3 = MaxPooling2D(pool_size=(2, 2),  # pool size
                                      strides=(2, 2),  # stride size
                                      padding='same',  # padding
                                      data_format=None)  #
@@ -173,7 +178,7 @@ class Model_Version_1_02(tf.keras.Model):
         x = self.conv4(x)
         x = self.conv5(x)
         x = self.conv6(x)
-        x = self.maxpool1(x)
+        x = self.maxpool3(x)
         x = self.flatten(x)
         x = self.d1(x)
         x = self.d2(x)
