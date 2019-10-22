@@ -27,7 +27,7 @@ def plot_multi_label_predictions(batched_testing_data, model, n):
         plt.imshow(converted_image, cmap=plt.cm.binary)
         plt.xlabel('True Value: %s,\n Predicted Values:'
                    '\nNegative:                [%0.2f], '
-                   '\nBenign Calcification:    [%0.2f]'
+                   '\nBegign Calcification:    [%0.2f]'
                    '\nBenign Mass:             [%0.2f]'
                    '\nMalignant Calcification: [%0.2f]'
                    '\nMalignant Mass:          [%0.2f]' % (class_names[label.numpy()[0]],

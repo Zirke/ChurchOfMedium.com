@@ -2,7 +2,9 @@ from Data_Processing.binary_pre_processing import process_data
 from Data_Processing.post_processing import *
 from Data_Processing.pre_processing import *
 #from Models.sequential_model import *
+from Data_Processing import *
 from Models.Model_Version_1_01 import *
+from Models.Model_Version_2_02 import *
 from Models.Model_version_1_02 import *
 from sorting_hub import *
 from callback import *
@@ -27,7 +29,7 @@ TEST_SIZE = len(list(parsed_val_data))                                          
 BATCH_SIZE = 32
 
 # batching the dataset into 32-size mini-batches
-batched_training_data = parsed_training_data.batch(BATCH_SIZE).repeat()                         # BATCH_SIZE
+batched_training_data = parsed_training_data.batch(BATCH_SIZE).repeat()                   # BATCH_SIZE
 batched_val_data = parsed_val_data.batch(BATCH_SIZE).repeat()                             # BATCH_SIZE
 batched_testing_data = parsed_testing_data.batch(BATCH_SIZE).repeat()                     # BATCH_SIZE
 
@@ -36,9 +38,9 @@ callback = myCallback()
 tb_callback = tensorboard_callback("logs", 1)
 cp_callback = checkpoint_callback()
 
-model = Model_Version_1_02()
-model.compile(optimizer='adam',
-              loss='categorical_crossentropy',
+model = Model_Version_2_02()
+model.compile(optimizer='rmsprop',
+              loss='mean_squared_error',
               metrics=['accuracy'])
 
 history = model.fit(
@@ -58,7 +60,7 @@ results = model.evaluate(batched_testing_data, steps= TEST_SIZE // BATCH_SIZE)
 print('test loss, test acc:', results)
 
 if __name__ == '__main__':
-    sub = Model_Version_1_02()
+    sub = Model_Version_2_02()
     sub.model().summary()
 
 # History displaying training and validation accuracy
