@@ -24,7 +24,7 @@ class App(QWidget):
 
     def initUI(self):
         input_image = self.getFileName()
-        prediction = self.makePrediction(self.convertPictureToNumpy(input_image))
+        prediction = self.makePrediction(self.getModel(), self.convertPictureToNumpy(input_image))
 
         self.picture_label = QLabel(self)
         picture = QtGui.QPixmap(input_image)
@@ -56,23 +56,26 @@ class App(QWidget):
     def on_click(self):
         new_picture, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "Vælg Billede",
                                                      "All Files (*);;Python Files (*.py)")
-        new_prediction = self.makePrediction(new_picture)
-
+        model = self.getModel()
+        new_prediction = self.makePrediction(model, self.convertPictureToNumpy(new_picture))
         self.picture_label.setPixmap(QtGui.QPixmap(new_picture))
-        # self.label_negative.setText("Probability of benign calcification: %s" % new_prediction[0, 0])
-        # self.label_benign_cal.setText("Probability of benign calcification: %s" % new_prediction[0, 1])
-        # self.label_benign_mass.setText("Probability of benign mass: %s" % new_prediction[0, 2])
-        # self.label_malignant_cal.setText("Probability of malignant calcification: %s" % new_prediction[0, 3])
-        # self.label_malignant_mass.setText("Probability of malignant mass: %s" % new_prediction[0, 4])
+        self.label_negative.setText("Probability of negative: %s" % new_prediction[0, 0])
+        self.label_benign_cal.setText("Probability of benign calcification: %s" % new_prediction[0, 1])
+        self.label_benign_mass.setText("Probability of benign mass: %s" % new_prediction[0, 2])
+        self.label_malignant_cal.setText("Probability of malignant calcification: %s" % new_prediction[0, 3])
+        self.label_malignant_mass.setText("Probability of malignant mass: %s" % new_prediction[0, 4])
 
-    def makePrediction(self, input_picture):
+    def getModel(self):
         model = Model_Version_1_01()
-        checkpoint_path = "trained_Models/model_Version_21-10-2019-H19M56/cp.ckpt"
+        checkpoint_path = "trained_Models/model_Version_21-10-2019-H15M30/cp.ckpt"
         model.load_weights(checkpoint_path)
+        return model
+
+    def makePrediction(self, input_model, input_picture):
         image = tf.reshape(input_picture, [-1, 299, 299, 1])
         image = tf.cast(image, tf.float32)
         image = image / 255.0
-        return model.predict(image)
+        return input_model.predict(image)
 
     def getFileName(self):
         fileName, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "",
