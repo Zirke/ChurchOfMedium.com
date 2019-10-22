@@ -7,11 +7,6 @@ class Model_Version_2_00(tf.keras.Model):
     def __init__(self):
         super(Model_Version_2_00, self).__init__()
 
-        self.dropout1 = Dropout(rate=0.5,
-                                noise_shape=None,
-                                seed=None
-                                )
-
         # first convolutional layer
         self.conv1 = Conv2D(32,  # filters
                             (9, 9),  # Kernel size
@@ -124,7 +119,7 @@ class Model_Version_2_00(tf.keras.Model):
 
         self.flatten = Flatten()
 
-        self.dropout5 = Dropout(rate=0.65,
+        self.dropout5 = Dropout(rate=0.5,
                                 noise_shape=None,
                                 seed=None
                                 )
@@ -138,7 +133,7 @@ class Model_Version_2_00(tf.keras.Model):
                         activity_regularizer=None,  #
                         bias_constraint=None)  #
 
-        self.dropout6 = Dropout(rate=0.65,
+        self.dropout6 = Dropout(rate=0.5,
                                 noise_shape=None,
                                 seed=None
                                 )
@@ -152,8 +147,8 @@ class Model_Version_2_00(tf.keras.Model):
                         activity_regularizer=None,  #
                         bias_constraint=None)  #
 
-        self.d3 = Dense(1,  # Amount of neurons
-                        activation='sigmoid',  # Activation function
+        self.d3 = Dense(10,  # Amount of neurons
+                        activation='softmax',  # Activation function
                         use_bias=True,  # bias is enabled
                         bias_initializer='zeros',  # initialisation of bias
                         bias_regularizer=None,  # regularize biases
@@ -162,7 +157,6 @@ class Model_Version_2_00(tf.keras.Model):
 
     # Call method should include all layers from model.
     def call(self, x):
-        x = self.dropout1(x)
         x = self.conv1(x)
         x = self.maxpool1(x)
         x = self.dropout2(x)
@@ -182,5 +176,5 @@ class Model_Version_2_00(tf.keras.Model):
         return self.d3(x)
 
     def model(self):
-        x = Input(shape=(299, 299, 1))
+        x = Input(shape=(28, 28, 1))
         return Model(inputs=[x], outputs=self.call(x))

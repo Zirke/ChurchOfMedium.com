@@ -1,3 +1,4 @@
+from data_Processing.sort_tfrecords import *
 """
 This file is where all the paths for different tfrecords are stored. 
 
@@ -10,7 +11,7 @@ All files are fairly high in volume and take a bit of space, each is written abo
 
 # Different sorting of tfrecords.
 sorting_algorithms = ['negative_bi', 'benign_cal_split', 'benign_mass_split',
-                      'malignant_cal_split', 'malignant_mass_split']
+                      'malignant_cal_split', 'malignant_mass_split', 'five_diagnosis']
 
 # The two lines below create a new file with negative/others with even distribution and loads it into a dataset.
 negative_bi_file_paths = ['sorted_tfrecords/negative_binary_training.tfrecord',
@@ -33,6 +34,10 @@ malignant_mass_split_paths = ['sorted_tfrecords/malignant_mass_split_training.tf
                               'sorted_tfrecords/malignant_mass_split_val.tfrecord',
                               'sorted_tfrecords/malignant_mass_split_test.tfrecord']
 
+five_diagnosis_paths = ['sorted_tfrecords/five_diagnosis_split_training.tfrecord',
+                        'sorted_tfrecords/five_diagnosis_split_val.tfrecord',
+                        'sorted_tfrecords/five_diagnosis_split_test.tfrecord', ]
+
 # # Creates 3 files of NEGATIVE, train, val, test. Roughly ~1.2gb data.
 # binary_classification(negative_bi_file_paths, sorting_algorithms[0])
 #
@@ -47,3 +52,6 @@ malignant_mass_split_paths = ['sorted_tfrecords/malignant_mass_split_training.tf
 #
 # # Creates 3 files of BENIGN MASS, train, val, test. Roughly ~500mb data.
 # binary_classification(malignant_mass_split_paths, sorting_algorithms[4])
+
+#
+# binary_classification(five_diagnosis_paths, sorting_algorithms[5])

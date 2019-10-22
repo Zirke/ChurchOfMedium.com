@@ -1,9 +1,10 @@
 # from models.sequential_model import *
-#from sorting_hub import *
+from sorting_hub import *
 # from sorting_hub import *
 from callback import *
 from data_Processing.post_processing import *
 from data_Processing.pre_processing import *
+from data_Processing.binary_pre_processing import *
 # from models.sequential_model import *
 from models.Model_Version_1_01 import *
 from models.Model_version_1_02 import *
@@ -16,21 +17,30 @@ process_dataset() gives dataset for 5 classes dataset
 from data_Processing.binary_pre_processing import *
 """
 
-parsed_training_data, parsed_val_data, parsed_testing_data = process_dataset()
+parsed_training_data, parsed_val_data, parsed_testing_data = process_data(five_diagnosis_paths)
 
-FILE_SIZE = len(list(parsed_training_data))                                             # Training dataset size
-TEST_SIZE = len(list(parsed_val_data))                                                  # Validation and test dataset size
-BATCH_SIZE = 32
+FILE_SIZE = len(list(parsed_training_data))  # Training dataset size
+TEST_SIZE = len(list(parsed_val_data))  # Validation and test dataset size
+BATCH_SIZE = 16
 
 # batching the dataset into 32-size mini-batches
-batched_training_data = parsed_training_data.batch(BATCH_SIZE).repeat()  # BATCH_SIZE
-batched_val_data = parsed_val_data.batch(BATCH_SIZE).repeat()                             # BATCH_SIZE
+batched_training_data = parsed_training_data.batch(BATCH_SIZE)  # BATCH_SIZE
+batched_val_data = parsed_val_data.batch(BATCH_SIZE)  # BATCH_SIZE
 batched_testing_data = parsed_testing_data.batch(BATCH_SIZE).repeat()                     # BATCH_SIZE
 
 # initializing the callback
 callback = myCallback()
 tb_callback = tensorboard_callback("logs", 1)
 cp_callback = checkpoint_callback()
+
+batched_training_data = batched_training_data.shuffle(buffer_size=FILE_SIZE,
+                                                      seed=None,
+                                                      reshuffle_each_iteration=True).repeat()
+
+batched_val_data = batched_val_data.shuffle(buffer_size=TEST_SIZE,
+                                            seed=None,
+                                            reshuffle_each_iteration=True).repeat()
+
 
 model = Model_Version_1_02()
 model.compile(optimizer='adam',
@@ -42,7 +52,7 @@ history = model.fit(
         steps_per_epoch = FILE_SIZE // BATCH_SIZE,  # FILE_SIZE
         validation_data = batched_val_data,
         validation_steps = TEST_SIZE // BATCH_SIZE,  # TEST_SIZE
-        epochs=15,
+    epochs=25,
         shuffle=True,
         verbose=1,  # verbose is the progress bar when training
         callbacks=[callback, cp_callback, tb_callback]
@@ -50,7 +60,7 @@ history = model.fit(
 
 # Evaluate the model on unseen testing data
 print('\n# Evaluate on test data')
-results = model.evaluate(batched_testing_data, steps= TEST_SIZE // BATCH_SIZE)
+results = model.evaluate(batched_testing_data, steps=TEST_SIZE // BATCH_SIZE)
 print('test loss, test acc:', results)
 
 if __name__ == '__main__':
@@ -58,5 +68,5 @@ if __name__ == '__main__':
     sub.model().summary()
 
 # History displaying training and validation accuracy
-plot_binary_label_predictions(batched_testing_data, model, 10)
+plot_multi_label_predictions(batched_testing_data, model, 10)
 plot_history(history)

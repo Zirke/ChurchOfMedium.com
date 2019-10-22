@@ -4,6 +4,7 @@ from data_Processing.malignant_cal_split import *
 from data_Processing.malignant_mass_split import *
 from data_Processing.negative_sort import *
 from data_Processing.pre_processing import *
+from data_Processing.five_diagnosis_labels import *
 
 """
 Purpose of this file is to read the ORIGINAL tfrecords and produce new ones based on sorting. 
@@ -77,6 +78,10 @@ def binary_classification(file_paths, sorting_algorithm):
     elif sorting_algorithm == 'malignant_mass_split':
         parsed_data = dataset.map(decode_low_wide)
         image_array, label_array = malignant_mass_split(parsed_data)
+
+    elif sorting_algorithm == 'five_diagnosis':
+        parsed_data = dataset.map(decode_low_wide)
+        image_array, label_array = append_arrays(parsed_data)
 
     amount_of_imgs = len(image_array)
     validation_images, validation_labels, image_array, label_array = five_percent_to_arrays(image_array, label_array,
