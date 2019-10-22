@@ -1,12 +1,16 @@
 import sys
 
+import PyQt5
 import numpy as np
 from PIL import Image
-from PyQt5 import QtGui
+from PyQt5 import QtGui, QtCore
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QApplication, QWidget, QFileDialog, QLabel, QVBoxLayout, QPushButton
 
 from models.Model_Version_1_01 import *
+
+# Makes the application scale correct on all resolutions
+PyQt5.QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
 
 
 class App(QWidget):
@@ -67,7 +71,7 @@ class App(QWidget):
 
     def getModel(self):
         model = Model_Version_1_01()
-        checkpoint_path = "trained_Models/model_Version_21-10-2019-H15M30/cp.ckpt"
+        checkpoint_path = "trained_Models/model_Version_22-10-2019-H09M51/cp.ckpt"
         model.load_weights(checkpoint_path)
         return model
 
