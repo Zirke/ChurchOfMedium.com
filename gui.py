@@ -1,85 +1,95 @@
-import matplotlib
-from PyQt5 import QtWidgets
+import sys
 
-# from PyQt5.QtWidgets import (Qwidget, QPushButton, QHBoxLayout, QVBoxLayout, QApplication, Qlabel)
-matplotlib.use('QT5Agg')
+import numpy as np
+from PIL import Image
+from PyQt5 import QtGui
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtWidgets import QApplication, QWidget, QFileDialog, QLabel, QVBoxLayout, QPushButton
 
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
-
-from callback import *
-
-from data_Processing.post_processing import *
-from fastcompile import *
-
-FILE_SIZE = 7305  # Training dataset size
-TEST_SIZE = 500  # Validation and test dataset size
-BATCH_SIZE = 32
-
-# Get datasets for training, validation, and testing
-# parsed_training_data, parsed_val_data, parsed_testing_data = process_dataset()
-
-# batching the dataset into 32-size minibatches
-# batched_training_data = parsed_training_data.batch(BATCH_SIZE).repeat()
-# batched_training_data = batched_training_data.shuffle(100).repeat()
-# batched_val_data = parsed_val_data.batch(BATCH_SIZE).repeat()
-# batched_testing_data = parsed_testing_data.batch(BATCH_SIZE).repeat()
-
-dataset = get_dataset()
-dataset = dataset.batch(BATCH_SIZE).repeat()
-# initializing the callback
-callback = myCallback()
-tb_callback = tensorboard_callback("logs", 1)
-cp_callback = checkpoint_callback()
-
-# define the model for training
-model = tf.keras.models.Sequential([
-    tf.keras.layers.Conv2D(16, (3, 3), activation='relu', input_shape=(299, 299, 1)),
-    tf.keras.layers.MaxPool2D(2, 2),
-    tf.keras.layers.Conv2D(32, (3, 3), activation='relu'),
-    tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
-    tf.keras.layers.Conv2D(128, (3, 3), activation='relu'),
-    tf.keras.layers.MaxPool2D(2, 2),
-    tf.keras.layers.Flatten(),
-    tf.keras.layers.Dense(128, activation='relu'),
-    tf.keras.layers.Dropout(0.2),
-    tf.keras.layers.Dense(5, activation='softmax')
-])
-
-model.compile(optimizer='adam',
-              loss='sparse_categorical_crossentropy',
-              metrics=['accuracy'])
-
-history = model.fit(
-    dataset,
-    steps_per_epoch=100 // BATCH_SIZE,
-    validation_data=dataset,
-    validation_steps=100 // BATCH_SIZE,
-    epochs=1,
-    verbose=1,  # verbose is the progress bar when training
-)
-
-# Evaluate the model on unseen testing data
-print('\n# Evaluate on test data')
-results = model.evaluate(dataset, steps=100 // BATCH_SIZE)
-print('test loss, test acc:', results)
+from models.Model_Version_1_01 import *
 
 
-class MyWindow(QtWidgets.QMainWindow):
+class App(QWidget):
     def __init__(self):
-        super(MyWindow, self).__init__()
-        # uic.loadUi('test.ui', self)
+        super().__init__()
+        self.title = 'Mammogram Prediction'
+        self.left = 10
+        self.top = 10
+        self.width = 640
+        self.height = 480
+        self.setWindowTitle(self.title)
+        self.setGeometry(self.left, self.top, self.width, self.height)
 
-        fig = plot_multi_label_predictions(dataset, model, 1)
-        self.plotWidget = FigureCanvasQTAgg(fig)
-        lay = QtWidgets.QVBoxLayout(self.content_plot)
-        lay.setContentsMargins(0, 0, 0, 0)
-        lay.addWidget(self.plotWidget)
+        self.initUI()
 
-        # add toolbar
-        # self.addToolBar(QtCore.Qt.BottomToolBarArea, NavigationToolbar(self.plotWidget, self))
+    def initUI(self):
+        input_image = self.getFileName()
+        prediction = self.makePrediction(self.getModel(), self.convertPictureToNumpy(input_image))
+
+        self.picture_label = QLabel(self)
+        picture = QtGui.QPixmap(input_image)
+        self.picture_label.setPixmap(picture)
+
+        self.label_negative = QLabel("Probability of Negative: %s" % prediction[0, 0], self)
+        self.label_benign_cal = QLabel("Probability of benign calcification: %s" % prediction[0, 1], self)
+        self.label_benign_mass = QLabel("Probability of benign mass: %s" % prediction[0, 2], self)
+        self.label_malignant_cal = QLabel("Probability of malignant calcification: %s" % prediction[0, 3], self)
+        self.label_malignant_mass = QLabel("Probability of malignant mass: %s" % prediction[0, 4], self)
+
+        button = QPushButton('Open New Image', self)
+        button.clicked.connect(self.on_click)
+
+        vbox = QVBoxLayout()
+        vbox.addWidget(self.picture_label)
+        vbox.addWidget(self.label_negative)
+        vbox.addWidget(self.label_benign_cal)
+        vbox.addWidget(self.label_benign_mass)
+        vbox.addWidget(self.label_malignant_cal)
+        vbox.addWidget(self.label_malignant_mass)
+        vbox.addWidget(button)
+
+        self.setLayout(vbox)
+        # self.resize(vbox.width(), vbox.height())
+        self.show()
+
+    @pyqtSlot()
+    def on_click(self):
+        new_picture, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "Vælg Billede",
+                                                     "All Files (*);;Python Files (*.py)")
+        model = self.getModel()
+        new_prediction = self.makePrediction(model, self.convertPictureToNumpy(new_picture))
+        self.picture_label.setPixmap(QtGui.QPixmap(new_picture))
+        self.label_negative.setText("Probability of negative: %s" % new_prediction[0, 0])
+        self.label_benign_cal.setText("Probability of benign calcification: %s" % new_prediction[0, 1])
+        self.label_benign_mass.setText("Probability of benign mass: %s" % new_prediction[0, 2])
+        self.label_malignant_cal.setText("Probability of malignant calcification: %s" % new_prediction[0, 3])
+        self.label_malignant_mass.setText("Probability of malignant mass: %s" % new_prediction[0, 4])
+
+    def getModel(self):
+        model = Model_Version_1_01()
+        checkpoint_path = "trained_Models/model_Version_21-10-2019-H15M30/cp.ckpt"
+        model.load_weights(checkpoint_path)
+        return model
+
+    def makePrediction(self, input_model, input_picture):
+        image = tf.reshape(input_picture, [-1, 299, 299, 1])
+        image = tf.cast(image, tf.float32)
+        image = image / 255.0
+        return input_model.predict(image)
+
+    def getFileName(self):
+        fileName, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "",
+                                                  "All Files (*);;Python Files (*.py)")
+        if fileName:
+            return fileName
+
+    def convertPictureToNumpy(self, filename):
+        img = Image.open(filename)
+        np_array = np.array(img, dtype='uint8')
+        return np_array
+
 
 if __name__ == '__main__':
-    app = QtWidgets.QApplication(sys.argv)
-    window = MyWindow()
-    window.show()
+    app = QApplication(sys.argv)
+    ex = App()
     sys.exit(app.exec_())
