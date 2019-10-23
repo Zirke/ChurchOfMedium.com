@@ -87,7 +87,7 @@ class Model_Version_2_04(tf.keras.Model):
 
         self.conv4 = Conv2D(16,  # filters
                             (3, 3),  # Kernel size
-                            strides=(1, 1),  # Stride
+                            strides=(2, 2),  # Stride
                             padding='same',  # Same refers to same padding as previous layer.
                             data_format=None,
                             # It should be defined if the dimensions are structured in non standard approach
@@ -280,41 +280,12 @@ class Model_Version_2_04(tf.keras.Model):
 
     # Call method should include all layers from model.
     def call(self, x):
-        #x = self.conv1(x)
-     #   x = self.conv5(x)
-        #x = self.maxpool1(x)
-      #  x = self.dropout2(x)
-        #x = self.conv2(x)
-     #   x = self.conv2(x)
-        #x = self.maxpool1(x)
-      #  x = self.dropout3(x)
-        x = self.conv3(x)
-      #  x = self.conv3(x)
-        #x = self.maxpool1(x)
-      #  x = self.dropout4(x)
         x = self.conv4(x)
-       # x = self.conv4(x)
-        x = self.maxpool1(x)
-       # x = self.dropout5(x)
-        x = self.maxpool1(x)
-        #  x = self.dropout4(x)
-        x = self.conv5(x)
-        x = self.maxpool1(x)
-        #  x = self.dropout4(x)
-        x = self.conv6(x)
-        x = self.maxpool1(x)
-        x = self.conv7(x)
-        x = self.maxpool1(x)
-        x = self.conv8(x)
-        x = self.maxpool1(x)
-        x = self.conv9(x)
-        x = self.maxpool1(x)
-        x = self.conv10(x)
-        x = self.maxpool1(x)
-        #x = self.conv11(x)
-        x = self.maxpool1(x)
-        #x = self.conv12(x)
-        x = self.maxpool1(x)
+        #x = self.maxpool1(x)
+        x# = self.conv5(x)
+        #x = self.maxpool1(x)
+        #x = self.conv6(x)
+        #x = self.maxpool1(x)
         x = self.flatten(x)
         x = self.d1(x)
         x = self.d2(x)
