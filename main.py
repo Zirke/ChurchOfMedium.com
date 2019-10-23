@@ -3,8 +3,9 @@ from Data_Processing.post_processing import *
 from Data_Processing.pre_processing import *
 #from Models.sequential_model import *
 from Data_Processing import *
-from Models.Model_Version_1_01 import *
+from Models.Model_Version_1_04f import *
 from Models.Model_Version_2_02 import *
+from Models.Model_Version_2_04 import Model_Version_2_04
 from Models.Model_version_1_02 import *
 from sorting_hub import *
 from callback import *
@@ -22,7 +23,7 @@ process_dataset() gives dataset for 5 classes dataset
 #config.gpu_options.allow_growth = True
 #session = InteractiveSession(config=config)
 
-parsed_training_data, parsed_val_data, parsed_testing_data = process_data(negative_bi_file_paths)
+parsed_training_data, parsed_val_data, parsed_testing_data = process_data()
 
 FILE_SIZE = len(list(parsed_training_data))                                             # Training dataset size
 TEST_SIZE = len(list(parsed_val_data))                                                  # Validation and test dataset size
@@ -38,8 +39,8 @@ callback = myCallback()
 tb_callback = tensorboard_callback("logs", 1)
 cp_callback = checkpoint_callback()
 
-model = Model_Version_2_02()
-model.compile(optimizer='rmsprop',
+model = Model_Version_1_04f()
+model.compile(optimizer=tf.keras.optimizers.RMSprop(learning_rate=0.001, rho=0.9),
               loss='mean_squared_error',
               metrics=['accuracy'])
 
@@ -48,9 +49,9 @@ history = model.fit(
         steps_per_epoch = FILE_SIZE // BATCH_SIZE,  # FILE_SIZE
         validation_data = batched_val_data,
         validation_steps = TEST_SIZE // BATCH_SIZE,  # TEST_SIZE
-        epochs=15,
+        epochs=30,
         shuffle=True,
-        verbose=1,  # verbose is the progress bar when training
+        verbose=2,  # verbose is the progress bar when training
         callbacks=[callback, cp_callback, tb_callback]
 )
 
@@ -60,7 +61,7 @@ results = model.evaluate(batched_testing_data, steps= TEST_SIZE // BATCH_SIZE)
 print('test loss, test acc:', results)
 
 if __name__ == '__main__':
-    sub = Model_Version_2_02()
+    sub = Model_Version_1_04f()
     sub.model().summary()
 
 # History displaying training and validation accuracy
