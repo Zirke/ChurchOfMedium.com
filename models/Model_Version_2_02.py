@@ -56,7 +56,7 @@ class Model_Version_2_02(tf.keras.Model):
                             bias_constraint=None,  #
                             )
 
-        self.dropout3 = Dropout(rate=0.5,
+        self.dropout3 = tf.keras.layers.Dropout(rate=0.2,
                                 noise_shape=None,
                                 seed=None
                                 )
@@ -201,7 +201,7 @@ class Model_Version_2_02(tf.keras.Model):
         x = self.conv2(x)
      #   x = self.conv2(x)
         x = self.maxpool1(x)
-      #  x = self.dropout3(x)
+
         x = self.conv3(x)
       #  x = self.conv3(x)
         x = self.maxpool1(x)
@@ -219,6 +219,7 @@ class Model_Version_2_02(tf.keras.Model):
         x = self.maxpool1(x)
         x = self.conv7(x)
         x = self.maxpool1(x)
+        x = self.dropout3(x)
         x = self.flatten(x)
         x = self.d1(x)
         x = self.d2(x)
