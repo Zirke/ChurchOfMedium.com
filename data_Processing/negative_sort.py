@@ -4,7 +4,7 @@ create a binary split between negatives and the other categories.
 
 As of right now the split is 1/2 NEGATIVES and 1/2 OTHERS
 """
-from Data_Processing.processing import shuffle
+from data_Processing.processing import shuffle
 
 def negative_bi_split(parsed_data):
     image_array, label_array, n_non_neg = length_and_non_negative_arrays(parsed_data)

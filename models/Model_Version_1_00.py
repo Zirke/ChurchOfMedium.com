@@ -1,6 +1,6 @@
 import tensorflow as tf
-from tensorflow.keras.layers import Dense, Flatten, Conv2D, MaxPooling2D, ZeroPadding2D, Input
 from tensorflow.keras import Model
+from tensorflow.keras.layers import Dense, Flatten, Conv2D, MaxPooling2D, Input
 
 
 class Model_Version_1_00(tf.keras.Model):
@@ -60,4 +60,3 @@ class Model_Version_1_00(tf.keras.Model):
     def model(self):
         x = Input(shape=(299, 299, 1))
         return Model(inputs=[x], outputs=self.call(x))
-

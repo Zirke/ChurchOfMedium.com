@@ -1,6 +1,4 @@
-import tensorflow as tf
-import matplotlib.pyplot as plt
-from Data_Processing.pre_processing import *
+from data_Processing.pre_processing import *
 
 """
 This file extracts information in files with binary classification.

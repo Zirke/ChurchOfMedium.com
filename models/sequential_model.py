@@ -1,8 +1,8 @@
-import tensorflow as tf
 from callback import *
-from main import FILE_SIZE,TEST_SIZE,BATCH_SIZE
+from main import FILE_SIZE, TEST_SIZE, BATCH_SIZE
 
-def create_model(batched_training_data,batched_val_data,callback, cp_callback, tb_callback):
+
+def create_model(batched_training_data, batched_val_data, callback, cp_callback, tb_callback):
     # initializing the callback
     callback = myCallback()
     tb_callback = tensorboard_callback("logs", 1)
@@ -37,6 +37,5 @@ def create_model(batched_training_data,batched_val_data,callback, cp_callback, t
     )
     return model, history
 
-
 # use in main to get output
-#model, history = create_model(batched_training_data,batched_val_data,callback,cp_callback,tb_callback)
+# model, history = create_model(batched_training_data,batched_val_data,callback,cp_callback,tb_callback)

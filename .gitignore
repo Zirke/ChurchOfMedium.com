@@ -102,14 +102,15 @@ venv.bak/
 
 # mypy
 .mypy_cache/
-/training10_4/
-/training10_3/
-/training10_2/
-/training10_1/
-/training10_0/
-/test10_data/
-/cv10_data/
-/cv10_labels.npy
-/test10_labels.npy
+/dataset/training10_4/
+/dataset/training10_3/
+/dataset/training10_2/
+/dataset/training10_1/
+/dataset/training10_0/
+/dataset/test10_data/
+/dataset/cv10_data/
+/dataset/cv10_labels.npy
+/dataset/test10_labels.npy
 /trained_Models/
 /logs/
+/sorted_tfrecords/
