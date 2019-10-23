@@ -1,19 +1,20 @@
 import tensorflow as tf
 
 from data_Processing.processing import shuffle
-
+from data_Processing.data_augmentation import *
 """
 Purpose of this file is to find the benign mass in the original dataset and
 create a binary split between benign mass and the other categories. 
 
 As of right now the split is 1/3rd BENIGN MASS and 2/3rd OTHERS
-of the 2/3rd only 20% of 1/3rd can be negative
+of the 2/3rd only 30% of 1/3rd can be negative
 """
 
 
 def benign_mass_split(parsed_data):
-    image_array, label_array, n_benign = length_and_benign_arrays(parsed_data)
-    non_benign_imgs, non_benign_lbls = non_benign_images(parsed_data, n_benign)
+    image_array, label_array = length_and_benign_arrays(parsed_data)
+    image_array, label_array = produce_more_data(image_array, label_array)
+    non_benign_imgs, non_benign_lbls = non_benign_images(parsed_data, len(image_array))
     non_benign_imgs,non_benign_lbls = shuffle(non_benign_imgs,non_benign_lbls, len(non_benign_imgs))
     for image in non_benign_imgs:
         image_array.append(image)
@@ -33,7 +34,7 @@ def length_and_benign_arrays(parsed_data):
             benign_images.append(image)
             benign_labels.append(label_one)
 
-    return benign_images, benign_labels, len(benign_images)
+    return benign_images, benign_labels
 
 
 def non_benign_images(parsed_data, n):
@@ -45,7 +46,7 @@ def non_benign_images(parsed_data, n):
         if len(non_benign_labels) == n * 2:
             return non_benign_image, non_benign_labels
         # We only want a certain amount of negatives
-        elif label.numpy() == 0 and negative_count < n // 100 * 20:
+        elif label.numpy() == 0 and negative_count < n // 100 * 30:
             non_benign_image.append(image)
             non_benign_labels.append(label)
             negative_count += 1

@@ -6,10 +6,10 @@ import tensorflow as tf
 
 
 # Callback that stops training when it reaches a single
-class myCallback(tf.keras.callbacks.Callback):
+class early_stopping_callback(tf.keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs={}):
-        if logs.get('accuracy') > 0.93:
-            print("\n93% accuracy reached and stopping training for now")
+        if (logs.get('accuracy') - logs.get('val_accuracy')) > 0.1:
+            print("\nTraining Accuracy is too large compared to validation accuracy")
             self.model.stop_training = True
 
 
