@@ -1,18 +1,19 @@
 import tensorflow as tf
 from data_Processing.processing import shuffle
-
+from data_Processing.data_augmentation import *
 """
 Purpose of this file is to create two arrays that consist of images and labels for classification 
 of 5 diagnosis types, negative, benign cal, benign mass, malignant cal, malignant mass. 
 
 The sorting is to take all of the 4 positive type categories and turn them into it array, then 
-get roughly 25% of the arrays size and append as many negative images to it. 
+get roughly 30% of the arrays size and append as many negative images to it. 
 """
 
 
 def append_arrays(parsed_data):
-    existing_images, existing_labels, n = positive_images_arr(parsed_data)
-    app_imgs, app_lbls = negative_images_arr(parsed_data, n)
+    existing_images, existing_labels = positive_images_arr(parsed_data)
+    existing_images, existing_labels = produce_more_data(existing_images, existing_labels)
+    app_imgs, app_lbls = negative_images_arr(parsed_data, len(existing_images))
 
     for image in app_imgs:
         existing_images.append(image)
@@ -30,7 +31,7 @@ def positive_images_arr(parsed_data):
             positive_images.append(image)
             positive_labels.append(label)
 
-    return positive_images, positive_labels, len(positive_images)
+    return positive_images, positive_labels
 
 
 def negative_images_arr(parsed_data, n):
@@ -38,7 +39,7 @@ def negative_images_arr(parsed_data, n):
     negative_count = 0
 
     for image, label in parsed_data:
-        if len(negative_labels) == (n // 100) * 25:
+        if len(negative_labels) == (n // 100) * 3:
             return negative_images, negative_labels
         elif label.numpy() == 0:
             negative_images.append(image)

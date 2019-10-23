@@ -1,19 +1,20 @@
 import tensorflow as tf
 
 from data_Processing.processing import shuffle
-
+from data_Processing.data_augmentation import *
 """
 Purpose of this file is to find the malignant calcification in the original dataset and
 create a binary split between malignant calcification and the other categories. 
 
 As of right now the split is 1/3rd MALIGNANT CALCIFICATION and 2/3rd OTHERS
-of the 2/3rd only 20% of 1/3rd can be negative
+of the 2/3rd only 30% of 1/3rd can be negative
 """
 
 
 def malignant_cal_split(parsed_data):
-    image_array, label_array, n_malignant = length_and_malignant_arrays(parsed_data)
-    non_malignant_imgs, non_malignant_lbls = non_malignant_images(parsed_data, n_malignant)
+    image_array, label_array = length_and_malignant_arrays(parsed_data)
+    image_array, label_array = produce_more_data(image_array, label_array)
+    non_malignant_imgs, non_malignant_lbls = non_malignant_images(parsed_data, len(image_array))
     non_malignant_imgs, non_malignant_lbls = shuffle(non_malignant_imgs, non_malignant_lbls, len(non_malignant_imgs))
     for image in non_malignant_imgs:
         image_array.append(image)
@@ -33,7 +34,7 @@ def length_and_malignant_arrays(parsed_data):
             malignant_images.append(image)
             malignant_labels.append(label_one)
 
-    return malignant_images, malignant_labels, len(malignant_images)
+    return malignant_images, malignant_labels
 
 
 def non_malignant_images(parsed_data, n):
@@ -44,7 +45,7 @@ def non_malignant_images(parsed_data, n):
         # Twice as many non-malignant calcification as malignant calcification
         if len(non_malignant_labels) == n * 2:
             return non_malignant_image, non_malignant_labels
-        elif label.numpy() == 0 and negative_count < n // 100 * 20:
+        elif label.numpy() == 0 and negative_count < n // 100 * 30:
             non_malignant_image.append(image)
             non_malignant_labels.append(label)
             negative_count += 1
