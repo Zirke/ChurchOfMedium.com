@@ -5,7 +5,6 @@ import numpy as np
 from PIL import Image
 from PyQt5 import QtGui, QtCore
 from PyQt5.Qt import Qt
-from PyQt5.QtChart import QChart, QChartView, QBarCategoryAxis, QBarSet, QBarSeries, QValueAxis
 from PyQt5.QtCore import QDir
 from PyQt5.QtWidgets import QApplication, QWidget, QFileDialog, QLabel, QVBoxLayout, QHBoxLayout, \
     QFileSystemModel, QTreeView, QTextEdit, QListView, QSizePolicy
@@ -19,12 +18,12 @@ with tf.device('/CPU:0'):
     class App(QWidget):
         def __init__(self):
             super().__init__()
-            # self.left = 100
-            # self.top = 100
-            # self.width = 1000
-            # self.height = 600
+            self.left = 100
+            self.top = 100
+            self.width = 1050
+            self.height = 600
             self.setWindowTitle('Mammogram Prediction')
-            # self.setGeometry(self.left, self.top, self.width, self.height)
+            self.setGeometry(self.left, self.top, self.width, self.height)
 
             self.initUI()
 
@@ -37,6 +36,7 @@ with tf.device('/CPU:0'):
             self.picture_label = QLabel(self)
             self.picture = QtGui.QPixmap(input_image)
             self.picture_label.setPixmap(self.picture)
+            self.picture_label.adjustSize()
 
             # Widget for adding prediction text
             self.prediction_text = QTextEdit()
@@ -99,18 +99,25 @@ with tf.device('/CPU:0'):
             path = self.dirModel.fileInfo(index).absoluteFilePath()
             self.listview.setRootIndex(self.fileModel.setRootPath(path))
 
+        def is_png(data):
+            return data[:8] == '\x89PNG\x0d\x0a\x1a\x0a'
+
         def on_listview_clicked(self, index):
             model = self.getModel()
             new_picture = self.fileModel.fileInfo(index).absoluteFilePath()
-            new_prediction = self.makePrediction(model, self.convertPictureToNumpy(new_picture))
+            try:
+                im = Image.open(new_picture)
+                new_prediction = self.makePrediction(model, self.convertPictureToNumpy(new_picture))
 
-            self.picture_name_label.setText(new_picture)
-            self.picture_label.setPixmap(QtGui.QPixmap(new_picture))
-            self.prediction_text.setText("Probability of Negative: %s" % new_prediction[0, 0] +
-                                         "\n\nProbability of benign calcification: %s" % new_prediction[0, 1] +
-                                         "\n\nProbability of benign mass: %s" % new_prediction[0, 2] +
-                                         "\n\nProbability of malignant calcification: %s" % new_prediction[0, 3] +
-                                         "\n\nProbability of malignant mass: %s" % new_prediction[0, 4])
+                self.picture_name_label.setText(new_picture)
+                self.picture_label.setPixmap(QtGui.QPixmap(new_picture))
+                self.prediction_text.setText("Probability of Negative: %s" % new_prediction[0, 0] +
+                                             "\n\nProbability of benign calcification: %s" % new_prediction[0, 1] +
+                                             "\n\nProbability of benign mass: %s" % new_prediction[0, 2] +
+                                             "\n\nProbability of malignant calcification: %s" % new_prediction[0, 3] +
+                                             "\n\nProbability of malignant mass: %s" % new_prediction[0, 4])
+            except IOError:
+                print('Chosen file is not a picture')
 
         def getModel(self):
             model = Model_Version_1_01()
