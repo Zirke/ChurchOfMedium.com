@@ -31,7 +31,7 @@ class Model_Version_1_04f(tf.keras.Model):
                                    padding='same',  # padding
                                    data_format=None)  #
 
-        self.dropout2 = tf.keras.layers.Dropout(rate=0.2,
+        self.dropout2 = tf.keras.layers.Dropout(rate=0.3,
                                                 noise_shape=None,
                                                 seed=None)
 
