@@ -1,4 +1,5 @@
 from data_Processing.sort_tfrecords import *
+
 """
 This file is where all the paths for different tfrecords are stored. 
 
@@ -44,20 +45,19 @@ all_paths = path_files = ['training10_0/training10_0.tfrecords',
                           'training10_3/training10_3.tfrecords',
                           'training10_4/training10_4.tfrecords']
 
-# # Creates 3 files of NEGATIVE, train, val, test. Roughly ~1.2gb data.
+# Creates 3 files of NEGATIVE, train, val, test. Roughly ~1.2gb data.
 # binary_classification(negative_bi_file_paths, sorting_algorithms[0])
-#
-# # Creates 3 files of BENIGN CALCIFICATION, train, val, test. Roughly ~500mb data.
+
+# # Creates 3 files of BENIGN CALCIFICATION, train, val, test. Roughly ~1.4gb data.
 # binary_classification(benign_cal_split_paths, sorting_algorithms[1])
 #
-# # Creates 3 files of BENIGN MASS, train, val, test. Roughly ~500mb data.
+# # Creates 3 files of BENIGN MASS, train, val, test. Roughly ~1.35gb data.
 # binary_classification(benign_mass_split_paths, sorting_algorithms[2])
 #
-# # Creates 3 files of BENIGN MASS, train, val, test. Roughly ~500mb data.
+# # Creates 3 files of MALIGNANT CALCIFICATION, train, val, test. Roughly ~1.15gb data.
 # binary_classification(malignant_cal_split_paths, sorting_algorithms[3])
 #
-# # Creates 3 files of BENIGN MASS, train, val, test. Roughly ~500mb data.
+# # Creates 3 files of MALIGNANT MASS, train, val, test. Roughly ~1.2gb data.
 # binary_classification(malignant_mass_split_paths, sorting_algorithms[4])
-
 #
 #binary_classification(five_diagnosis_paths, sorting_algorithms[5])
