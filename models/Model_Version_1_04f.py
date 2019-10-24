@@ -8,7 +8,7 @@ class Model_Version_1_04f(tf.keras.Model):
     def __init__(self):
         super(Model_Version_1_04f, self).__init__()
         # first convolutional layer
-        self.conv1 = Conv2D(32,  # filters
+        self.conv1 = Conv2D(16,  # filters
                             (3, 3),  # Kernel size
                             strides=(2, 2),  # Stride
                             padding='same',  # Same refers to same padding as previous layer.
@@ -35,7 +35,7 @@ class Model_Version_1_04f(tf.keras.Model):
                                                 noise_shape=None,
                                                 seed=None)
 
-        self.conv2 = Conv2D(64,  # filters
+        self.conv2 = Conv2D(32,  # filters
                             (3, 3),  # Kernel size
                             strides=(1, 1),  # Stride
                             padding='same',  # Same refers to same padding as previous layer.
@@ -82,6 +82,7 @@ class Model_Version_1_04f(tf.keras.Model):
         # Dense is a fully connected layer
         self.d1 = Dense(1024,  # Amount of neurons
                         activation='relu',  # Activation function
+                        kernel_regularizer=tf.keras.regularizers.l2(0.001),
                         use_bias=True,  # bias is enabled
                         bias_initializer='zeros',  # initialisation of bias
                         bias_regularizer=None,  # regularize biases
@@ -90,6 +91,7 @@ class Model_Version_1_04f(tf.keras.Model):
 
         self.d2 = Dense(512,  # Amount of neurons
                         activation='relu',  # Activation function
+                        kernel_regularizer=tf.keras.regularizers.l2(0.001),
                         use_bias=True,  # bias is enabled
                         bias_initializer='zeros',  # initialisation of bias
                         bias_regularizer=None,  # regularize biases
@@ -111,9 +113,9 @@ class Model_Version_1_04f(tf.keras.Model):
         x = self.conv2(x)
         x = self.maxpol2(x)
         x = self.conv3(x)
-        x = self.dropout2(x)
         x = self.flatten(x)
         x = self.d1(x)
+        x = self.dropout2(x)
         x = self.d2(x)
         return self.d3(x)
 
