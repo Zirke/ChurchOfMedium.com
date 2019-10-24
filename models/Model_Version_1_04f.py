@@ -53,6 +53,24 @@ class Model_Version_1_04f(tf.keras.Model):
                             bias_constraint=None,  #
                             input_shape=(299, 299, 1))  # shape of the input
 
+        self.conv3 = Conv2D(64,  # filters
+                            (3, 3),  # Kernel size
+                            strides=(1, 1),  # Stride
+                            padding='same',  # Same refers to same padding as previous layer.
+                            data_format=None,
+                            # It should be defined if the dimensions are structured in non standard approach
+                            dilation_rate=(1, 1),  # how dilated the picture is
+                            activation='relu',  # Activation function
+                            use_bias=True,  # Enable bias
+                            kernel_initializer='glorot_uniform',  # initialiser of filters
+                            bias_initializer='zeros',  # initialisation of bias
+                            kernel_regularizer=None,  #
+                            bias_regularizer=None,  #
+                            activity_regularizer=None,  #
+                            kernel_constraint=None,  #
+                            bias_constraint=None,  #
+                            input_shape=(299, 299, 1))  # shape of the input
+
         self.maxpol2 = MaxPooling2D(pool_size=(2, 2),  # pool size
                                    strides=(2, 2),  # stride size
                                    padding='same',  # padding
@@ -92,6 +110,7 @@ class Model_Version_1_04f(tf.keras.Model):
         x = self.maxpol1(x)
         x = self.conv2(x)
         x = self.maxpol2(x)
+        x = self.conv3(x)
         x = self.dropout2(x)
         x = self.flatten(x)
         x = self.d1(x)

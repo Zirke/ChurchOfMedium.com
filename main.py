@@ -1,4 +1,5 @@
 # from models.sequential_model import *
+from models.Model_Version_2_02 import Model_Version_2_02
 from sorting_hub import *
 # from sorting_hub import *
 from callback import *
@@ -53,7 +54,7 @@ history = model.fit(
         steps_per_epoch = FILE_SIZE // BATCH_SIZE,  # FILE_SIZE
         validation_data = batched_val_data,
         validation_steps = TEST_SIZE // BATCH_SIZE,  # TEST_SIZE
-        epochs=400,
+        epochs=200,
         shuffle=True,
         verbose=2,  # verbose is the progress bar when training
 )
