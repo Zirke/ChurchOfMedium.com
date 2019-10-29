@@ -1,5 +1,4 @@
 import sys
-
 import PyQt5
 import numpy as np
 from PIL import Image
@@ -106,16 +105,16 @@ with tf.device('/CPU:0'):
             model = self.getModel()
             new_picture = self.fileModel.fileInfo(index).absoluteFilePath()
             try:
-                im = Image.open(new_picture)
+                Image.open(new_picture)
                 new_prediction = self.makePrediction(model, self.convertPictureToNumpy(new_picture))
 
                 self.picture_name_label.setText(new_picture)
                 self.picture_label.setPixmap(QtGui.QPixmap(new_picture))
                 self.prediction_text.setText("Probability of Negative: %s" % new_prediction[0, 0] +
-                                             "\n\nProbability of benign calcification: %s" % new_prediction[0, 1] +
-                                             "\n\nProbability of benign mass: %s" % new_prediction[0, 2] +
-                                             "\n\nProbability of malignant calcification: %s" % new_prediction[0, 3] +
-                                             "\n\nProbability of malignant mass: %s" % new_prediction[0, 4])
+                                             "\n\nProbability of Benign Calcification: %s" % new_prediction[0, 1] +
+                                             "\n\nProbability of Benign Mass: %s" % new_prediction[0, 2] +
+                                             "\n\nProbability of Malignant Calcification: %s" % new_prediction[0, 3] +
+                                             "\n\nProbability of Malignant Mass: %s" % new_prediction[0, 4])
             except IOError:
                 print('Chosen file is not a picture')
 
