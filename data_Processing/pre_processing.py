@@ -42,7 +42,7 @@ def process_dataset():
     train_dataset = tf.data.Dataset.from_tensor_slices((t_image, t_label))
     test_dataset = tf.data.Dataset.from_tensor_slices((te_image, te_label))
     val_dataset = tf.data.Dataset.from_tensor_slices((v_image, v_label))
-    return (training_data, val_dataset, test_dataset)
+    return (train_dataset, val_dataset, test_dataset)
 
 
 def _parse_function(example_proto):

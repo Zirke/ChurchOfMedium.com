@@ -5,6 +5,7 @@ from data_Processing.malignant_mass_split import *
 from data_Processing.negative_sort import *
 from data_Processing.pre_processing import *
 from data_Processing.five_diagnosis_labels import *
+from data_Processing.data_augmentation import *
 
 """
 Purpose of this file is to read the ORIGINAL tfrecords and produce new ones based on sorting. 
@@ -16,7 +17,6 @@ The validation and test files each consists of 5% of the training dataset
 
 These methods are called from within the sorting_hub mostly. 
 """
-
 
 feature_description = {
     'label': tf.io.FixedLenFeature([], tf.int64, default_value=0),
@@ -47,7 +47,7 @@ def decode_low(serialized_example):
 # Decode the original dataset with full labelling of all classes, performs no reshaping of images.
 def decode_low_wide(serialized_example):
     feature = tf.io.parse_single_example(serialized_example, feature_description)
-    image = tf.io.decode_raw(feature['image'], tf.int8)
+    image = tf.io.decode_raw(feature['image'], tf.uint8)
     label = feature['label']
 
     return image, label
@@ -88,45 +88,44 @@ def binary_classification(file_paths, sorting_algorithm):
                                                                                             amount_of_imgs)
     testing_images, testing_labels, image_array, label_array = five_percent_to_arrays(image_array, label_array,
                                                                                       amount_of_imgs)
-    #Manual shuffle
+    # Manual shuffle
     testing_images, testing_labels = shuffle(testing_images, testing_labels, len(testing_images))
-    validation_images,validation_labels = shuffle(validation_images,validation_labels, len(validation_images))
-
+    validation_images, validation_labels = shuffle(validation_images, validation_labels, len(validation_images))
     image_array, label_array = shuffle(image_array, label_array, len(image_array))
-    training_dataset = tf.data.Dataset.from_tensor_slices((image_array, label_array))
-    validation_dataset = tf.data.Dataset.from_tensor_slices((validation_images, validation_labels))
-    testing_dataset = tf.data.Dataset.from_tensor_slices((testing_images, testing_labels))
 
-    serialized_tr_dataset = training_dataset.map(tf_serialize_example)
-    serialized_val_dataset = validation_dataset.map(tf_serialize_example)
-    serialized_test_dataset = testing_dataset.map(tf_serialize_example)
+    with tf.device('/CPU:0'):
+        training_dataset = tf.data.Dataset.from_tensor_slices((conv_to_tensor(image_array), label_array))
+        validation_dataset = tf.data.Dataset.from_tensor_slices((conv_to_tensor(validation_images), validation_labels))
+        testing_dataset = tf.data.Dataset.from_tensor_slices((conv_to_tensor(testing_images), testing_labels))
 
-    def generator():
-        for features in training_dataset:
-            yield serialize_example(*features)
+        serialized_tr_dataset = training_dataset.map(tf_serialize_example)
+        serialized_val_dataset = validation_dataset.map(tf_serialize_example)
+        serialized_test_dataset = testing_dataset.map(tf_serialize_example)
 
-    def generator_val():
-        for features in validation_dataset:
-            yield serialize_example(*features)
+        def generator():
+            for features in training_dataset:
+                yield serialize_example(*features)
 
-    def generator_test():
-        for features in testing_dataset:
-            yield serialize_example(*features)
+        def generator_val():
+            for features in validation_dataset:
+                yield serialize_example(*features)
 
-    serialized_tr_dataset = tf.data.Dataset.from_generator(generator, output_types=tf.string, output_shapes=())
-    serialized_val_dataset = tf.data.Dataset.from_generator(generator_val, output_types=tf.string, output_shapes=())
-    serialized_test_dataset = tf.data.Dataset.from_generator(generator_test, output_types=tf.string, output_shapes=())
+        def generator_test():
+            for features in testing_dataset:
+                yield serialize_example(*features)
 
-    # filename_tr = 'negative_binary_training.tfrecord'
-    # filename_val = 'negative_binary_val.tfrecord'
-    # filename_test = 'negative_binary_test.tfrecord'
-    writer_tr = tf.data.experimental.TFRecordWriter(file_paths[0])
-    writer_val = tf.data.experimental.TFRecordWriter(file_paths[1])
-    writer_test = tf.data.experimental.TFRecordWriter(file_paths[2])
+        serialized_tr_dataset = tf.data.Dataset.from_generator(generator, output_types=tf.string, output_shapes=())
+        serialized_val_dataset = tf.data.Dataset.from_generator(generator_val, output_types=tf.string, output_shapes=())
+        serialized_test_dataset = tf.data.Dataset.from_generator(generator_test, output_types=tf.string,
+                                                                 output_shapes=())
 
-    writer_tr.write(serialized_tr_dataset)
-    writer_val.write(serialized_val_dataset)
-    writer_test.write(serialized_test_dataset)
+        writer_tr = tf.data.experimental.TFRecordWriter(file_paths[0])
+        writer_val = tf.data.experimental.TFRecordWriter(file_paths[1])
+        writer_test = tf.data.experimental.TFRecordWriter(file_paths[2])
+
+        writer_tr.write(serialized_tr_dataset)
+        writer_val.write(serialized_val_dataset)
+        writer_test.write(serialized_test_dataset)
 
 
 # Creates an array of images and labels consisting of 5% of the training data. Used for val and test tfrecords.
@@ -177,3 +176,11 @@ def _int64_feature(value):
 def _bytes_feature(value):
     value = value.numpy().tostring()
     return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
+
+
+def conv_to_tensor(image_array):
+    tensor_arr = []
+    for image in image_array:
+        conv = tf.convert_to_tensor(image, dtype=tf.uint8)
+        tensor_arr.append(tf.reshape(conv, [-1, 299, 299, 1]))
+    return tensor_arr
