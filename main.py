@@ -49,22 +49,26 @@ model.compile(optimizer=keras.optimizers.Adam(learning_rate=0.001),
               loss='sparse_categorical_crossentropy',
               metrics=['accuracy'])
 
-history = model.fit(
-    batched_training_data,
-    steps_per_epoch=FILE_SIZE // BATCH_SIZE,  # FILE_SIZE
-    validation_data=batched_testing_data,
-    validation_steps=85,#TEST_SIZE // BATCH_SIZE,  # TEST_SIZE
-    epochs=50,
-    shuffle=True,
-    verbose=2  # ,  # verbose is the progress bar when training
-    # callbacks=[callback, cp_callback, tb_callback]
-)
 
+
+# history = model.fit(
+#     batched_training_data,
+#     steps_per_epoch=FILE_SIZE // BATCH_SIZE,  # FILE_SIZE
+#     validation_data=batched_testing_data,
+#     validation_steps=85,#TEST_SIZE // BATCH_SIZE,  # TEST_SIZE
+#     epochs=1,
+#     shuffle=True,
+#     verbose=2,  # ,  # verbose is the progress bar when training
+#     callbacks=[callback, cp_callback]
+# )
+model.load_weights('trained_Models/model_Version_29-10-2019-H12M07/cp.ckpt')
 # Evaluate the model on unseen testing data
 print('\n# Evaluate on test data')
-results = model.evaluate(batched_val_data, steps=TEST_SIZE // BATCH_SIZE)
-print('test loss, test acc:', results)
+for image,label in batched_val_data.take(1):
+    model.predict(image.numpy())
+#results = model.evaluate(batched_val_data, steps=TEST_SIZE // BATCH_SIZE)
+#print('test loss, test acc:', results)
 
 # History displaying training and validation accuracy
 plot_multi_label_predictions(batched_testing_data, model, 10)
-plot_history(history)
+#plot_history(history)

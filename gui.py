@@ -12,6 +12,8 @@ from PyQt5.QtWidgets import QApplication, QWidget, QFileDialog, QLabel, QVBoxLay
 from models.Model_Version_1_01 import *
 
 # Makes the application scale correct on all resolutions
+from models.Model_Version_1_04c import Model_Version_1_04c
+
 PyQt5.QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
 
 with tf.device('/CPU:0'):
@@ -120,8 +122,8 @@ with tf.device('/CPU:0'):
                 print('Chosen file is not a picture')
 
         def getModel(self):
-            model = Model_Version_1_01()
-            checkpoint_path = "trained_Models/model_Version_22-10-2019-H09M51/cp.ckpt"
+            model = Model_Version_1_04c()
+            checkpoint_path = 'trained_Models/model_Version_29-10-2019-H12M07/cp.ckpt.index'
             model.load_weights(checkpoint_path)
             return model
 

@@ -27,4 +27,5 @@ def checkpoint_callback():
 
     return tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,
                                               save_weights_only=True,
-                                              verbose=1)
+                                              verbose=1,
+                                              )
