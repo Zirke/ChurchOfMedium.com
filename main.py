@@ -18,7 +18,7 @@ process_dataset() gives dataset for 5 classes dataset
 from data_Processing.binary_pre_processing import *
 """
 with tf.device('/CPU:0'):
-    parsed_training_data, parsed_val_data, parsed_testing_data = process_data(malignant_cal_split_paths)
+    parsed_training_data, parsed_val_data, parsed_testing_data = process_data(five_diagnosis_paths)
 
     FILE_SIZE = len(list(parsed_training_data))  # Training dataset size
     TEST_SIZE = len(list(parsed_val_data))  # Validation and test dataset size
@@ -48,17 +48,18 @@ with tf.device('/CPU:0'):
                   metrics=['accuracy'])
 
     if __name__ == '__main__':
-        sub = Model_Version_1_04c()
+        sub = Model_Version_1_01()
         sub.model().summary()
 
 history = model.fit(
     batched_training_data,
-    steps_per_epoch=FILE_SIZE // BATCH_SIZE,  # FILE_SIZE
+    steps_per_epoch=100 // BATCH_SIZE,  # FILE_SIZE
     validation_data=batched_val_data,
     validation_steps=TEST_SIZE // BATCH_SIZE,  # TEST_SIZE
-    epochs=50,
+    epochs=5,
     shuffle=True,
     verbose=1,  # verbose is the progress bar when training
+    callbacks=[cp_callback]
 )
 
 # Evaluate the model on unseen testing data
