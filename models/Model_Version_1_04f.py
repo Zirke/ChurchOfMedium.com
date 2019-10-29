@@ -31,7 +31,7 @@ class Model_Version_1_04f(tf.keras.Model):
                                    padding='same',  # padding
                                    data_format=None)  #
 
-        self.dropout2 = tf.keras.layers.Dropout(rate=0.3,
+        self.dropout2 = tf.keras.layers.Dropout(rate=0.25,
                                                 noise_shape=None,
                                                 seed=None)
 
@@ -80,25 +80,43 @@ class Model_Version_1_04f(tf.keras.Model):
         self.flatten = Flatten()
 
         # Dense is a fully connected layer
-        self.d1 = Dense(1024,  # Amount of neurons
+        self.d1 = Dense(512,  # Amount of neurons
                         activation='relu',  # Activation function
-                        kernel_regularizer=tf.keras.regularizers.l2(0.001),
+                        #kernel_regularizer=tf.keras.regularizers.l2(0.001),
                         use_bias=True,  # bias is enabled
                         bias_initializer='zeros',  # initialisation of bias
                         bias_regularizer=None,  # regularize biases
                         activity_regularizer=None,  #
                         bias_constraint=None)  #
 
-        self.d2 = Dense(512,  # Amount of neurons
+        self.d2 = Dense(1024,  # Amount of neurons
                         activation='relu',  # Activation function
-                        kernel_regularizer=tf.keras.regularizers.l2(0.001),
+                        #kernel_regularizer=tf.keras.regularizers.l2(0.001),
                         use_bias=True,  # bias is enabled
                         bias_initializer='zeros',  # initialisation of bias
                         bias_regularizer=None,  # regularize biases
                         activity_regularizer=None,  #
                         bias_constraint=None)  #
 
-        self.d3 = Dense(5,  # Amount of neurons
+        self.d3 = Dense(1024,  # Amount of neurons
+                        activation='relu',  # Activation function
+                        #kernel_regularizer=tf.keras.regularizers.l2(0.001),
+                        use_bias=True,  # bias is enabled
+                        bias_initializer='zeros',  # initialisation of bias
+                        bias_regularizer=None,  # regularize biases
+                        activity_regularizer=None,  #
+                        bias_constraint=None)  #
+
+        self.d4 = Dense(1024,  # Amount of neurons
+                        activation='relu',  # Activation function
+                        #kernel_regularizer=tf.keras.regularizers.l2(0.001),
+                        use_bias=True,  # bias is enabled
+                        bias_initializer='zeros',  # initialisation of bias
+                        bias_regularizer=None,  # regularize biases
+                        activity_regularizer=None,  #
+                        bias_constraint=None)  #
+
+        self.d5 = Dense(5,  # Amount of neurons
                         activation='softmax',  # Activation function
                         use_bias=True,  # bias is enabled
                         bias_initializer='zeros',  # initialisation of bias
@@ -115,9 +133,16 @@ class Model_Version_1_04f(tf.keras.Model):
         x = self.conv3(x)
         x = self.flatten(x)
         x = self.d1(x)
-        x = self.dropout2(x)
+       # x = self.dropout2(x)
         x = self.d2(x)
-        return self.d3(x)
+        #x = self.dropout2(x)
+        x = self.d3(x)
+        #x = self.dropout2(x)
+        x = self.d3(x)
+        x = self.dropout2(x)
+        x = self.d4(x)
+        x = self.dropout2(x)
+        return self.d5(x)
 
     def model(self):
         x = Input(shape=(299, 299, 1))
