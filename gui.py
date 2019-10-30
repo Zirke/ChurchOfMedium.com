@@ -13,6 +13,8 @@ from models.Model_Version_1_01 import *
 
 # Makes the application scale correct on all resolutions
 from models.Model_Version_1_04c import Model_Version_1_04c
+from models.Model_Version_1_04f import Model_Version_1_04f
+from models.Model_Version_2_69f import Model_Version_2_69f
 
 PyQt5.QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
 
@@ -42,11 +44,11 @@ with tf.device('/CPU:0'):
 
             # Widget for adding prediction text
             self.prediction_text = QTextEdit()
-            self.prediction_text.append("Probability of Negative: %s" % prediction[0, 0] +
-                                        "\n\nProbability of benign calcification: %s" % prediction[0, 1] +
-                                        "\n\nProbability of benign mass: %s" % prediction[0, 2] +
-                                        "\n\nProbability of malignant calcification: %s" % prediction[0, 3] +
-                                        "\n\nProbability of malignant mass: %s" % prediction[0, 4])
+            self.prediction_text.append("Probability of Negative: %s" % prediction[0, 0] )
+                                         # "\n\nProbability of benign calcification: %s" % prediction[0, 1] +
+                                         # "\n\nProbability of benign mass: %s" % prediction[0, 2] +
+                                         # "\n\nProbability of malignant calcification: %s" % prediction[0, 3] +
+                                         # "\n\nProbability of malignant mass: %s" % prediction[0, 4])
             self.prediction_text.setReadOnly(True)
             # self.prediction_text.setMaximumSize(400, 299)
             # self.prediction_text.setMinimumSize(400, 299)
@@ -122,8 +124,8 @@ with tf.device('/CPU:0'):
                 print('Chosen file is not a picture')
 
         def getModel(self):
-            model = Model_Version_1_04c()
-            checkpoint_path = 'trained_Models/model_Version_29-10-2019-H12M07/cp.ckpt.index'
+            model = Model_Version_2_69f()
+            checkpoint_path = 'trained_Models/model_Version_29-10-2019-H14M58/cp.ckpt.index'
             model.load_weights(checkpoint_path)
             return model
 

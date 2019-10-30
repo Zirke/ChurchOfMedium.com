@@ -14,7 +14,7 @@ from models.Model_version_1_03c import *
 # from models.Model_Version_2_01c import *
 
 
-parsed_training_data, parsed_val_data, parsed_testing_data = process_data(negative_bi_file_paths)
+parsed_training_data, parsed_val_data, parsed_testing_data = process_data(five_diagnosis_paths)
 
 FILE_SIZE = len(list(parsed_training_data))  # Training dataset size
 TEST_SIZE = len(list(parsed_val_data))  # Validation and test dataset size
@@ -33,19 +33,20 @@ batched_training_data = parsed_training_data.batch(BATCH_SIZE).repeat()  # BATCH
 batched_val_data = parsed_val_data.batch(BATCH_SIZE).repeat()  # BATCH_SIZE
 batched_testing_data = parsed_testing_data.batch(BATCH_SIZE).repeat()  # BATCH_SIZE
 
-model = Model_Version_2_69f()
+model = Model_Version_1_04f()
+model_string = str(model).split(".")
 
 # initializing the callback
 callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=3)
 tb_callback = tensorboard_callback("logs", 1)
-cp_callback = checkpoint_callback(str(model))
+cp_callback = checkpoint_callback(str(model_string[len(model_string)-2]))
 
 if __name__ == '__main__':
-    sub = Model_Version_2_69f()
+    sub = Model_Version_1_04f()
     sub.model().summary()
 
 model.compile(optimizer='adam',
-              loss='mean_squared_error',
+              loss='sparse_categorical_crossentropy',
               metrics=['accuracy'])
 
 #model.load_weights('trained_Models/model_Version_29-10-2019-H13M50/cp.ckpt')
@@ -69,5 +70,5 @@ results = model.evaluate(batched_val_data, steps=TEST_SIZE // BATCH_SIZE)
 print('test loss, test acc:', results)
 
 # History displaying training and validation accuracy
-plot_binary_label_predictions(batched_testing_data, model, 10)
+plot_multi_label_predictions(batched_testing_data, model, 10)
 # plot_history(history)
