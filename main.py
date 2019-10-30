@@ -39,7 +39,8 @@ if os.path.isdir('logs'):
     shutil.rmtree('logs')
 
 # initializing the callback
-callback = early_stopping_callback()
+es_callback = early_stopping_callback('val_loss', 5)
+ms_callback = manual_stopping_callback()
 tb_callback = tensorboard_callback("logs", 1)
 cp_callback = checkpoint_callback()
 
@@ -61,7 +62,7 @@ history = model.fit(
     epochs=10,
     shuffle=True,
     verbose=2,  # ,  # verbose is the progress bar when training
-    callbacks=[cp_callback, tb_callback]
+    callbacks=[es_callback, cp_callback, tb_callback]
 )
 
 # Evaluate the model on unseen testing data
