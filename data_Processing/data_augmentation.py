@@ -7,7 +7,7 @@ def flip_image_90(image_arr, label_array):
     for image in image_arr:
         if not isinstance(image, (np.ndarray, np.generic)):
             image = image.numpy().reshape(299, 299)
-        image = np.rot90(image, k=1, axes=(0, 1))
+        image = np.rot90(image)
         flipped_images.append(image)
     for label in label_array:
         labels.append(label)

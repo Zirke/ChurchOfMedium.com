@@ -25,7 +25,7 @@ with tf.device('/CPU:0'):
             self.left = 100
             self.top = 100
             self.width = 1050
-            self.height = 600
+            self.height = 800
             self.setWindowTitle('Mammogram Prediction')
             self.setGeometry(self.left, self.top, self.width, self.height)
 
@@ -53,40 +53,70 @@ with tf.device('/CPU:0'):
             # self.prediction_text.setMaximumSize(400, 299)
             # self.prediction_text.setMinimumSize(400, 299)
 
-            # Tree and List view for file directory overview
-            path = '/pictures'
-            self.treeview = QTreeView()
-            self.listview = QListView()
+            # Tree and List view for file directory overview of pictures
+            self.picture_directory_label = QLabel('Select a Picture:')
+            picture_path = '\pictures'
+            self.treeview_picture = QTreeView()
+            self.listview_picture = QListView()
 
-            self.dirModel = QFileSystemModel()
-            self.dirModel.setRootPath(path)
-            self.dirModel.setFilter(QDir.NoDotAndDotDot | QDir.AllDirs)
+            self.dirModel_picture = QFileSystemModel()
+            self.dirModel_picture.setRootPath(picture_path)
+            self.dirModel_picture.setFilter(QDir.NoDotAndDotDot | QDir.AllDirs)
 
-            self.fileModel = QFileSystemModel()
-            self.fileModel.setFilter(QDir.NoDotAndDotDot | QDir.Files)
+            self.fileModel_picture = QFileSystemModel()
+            self.fileModel_picture.setFilter(QDir.NoDotAndDotDot | QDir.Files)
 
-            self.treeview.setModel(self.dirModel)
-            self.listview.setModel(self.fileModel)
+            self.treeview_picture.setModel(self.dirModel_picture)
+            self.listview_picture.setModel(self.fileModel_picture)
 
-            self.treeview.setRootIndex(self.dirModel.index(path))
-            self.treeview.setColumnWidth(0, 180)
-            self.listview.setRootIndex(self.fileModel.index(path))
-            self.treeview.clicked.connect(self.on_treeview_clicked)
-            self.listview.clicked.connect(self.on_listview_clicked)
+            self.treeview_picture.setRootIndex(self.dirModel_picture.index(picture_path))
+            self.treeview_picture.setColumnWidth(0, 180)
+            self.listview_picture.setRootIndex(self.fileModel_picture.index(picture_path))
+            self.treeview_picture.clicked.connect(self.on_picture_treeview_clicked)
+            self.listview_picture.clicked.connect(self.on_picture_listview_clicked)
+
+            # Tree and List view for file directory overview of models
+            self.model_directory_label = QLabel('Select a Model:')
+            model_path = '\trained_Models'
+            # self.treeview_model = QTreeView()
+            self.listview_model = QListView()
+
+            self.dirModel_model = QFileSystemModel()
+            self.dirModel_model.setRootPath(model_path)
+            self.dirModel_model.setFilter(QDir.NoDotAndDotDot | QDir.AllDirs)
+
+            self.fileModel_model = QFileSystemModel()
+            self.fileModel_model.setFilter(QDir.NoDotAndDotDot | QDir.Files)
+
+            # self.treeview_model.setModel(self.dirModel_model)
+            self.listview_model.setModel(self.fileModel_model)
+
+            # self.treeview_model.setRootIndex(self.dirModel_model.index(model_path))
+            # self.treeview_model.setColumnWidth(0, 180)
+            self.listview_model.setRootIndex(self.fileModel_model.index(model_path))
+            # self.treeview_model.clicked.connect(self.on_model_treeview_clicked)
+            self.listview_model.clicked.connect(self.on_model_listview_clicked)
 
             # Layout handling.
             self.vbox = QVBoxLayout()
             self.hbox_top = QHBoxLayout()
+            self.hbox_mid = QHBoxLayout()
             self.hbox_buttom = QHBoxLayout()
             self.setLayout(self.vbox)  # This vbox is the outer layer
 
+            self.vbox.addWidget(self.model_directory_label)
             self.vbox.addLayout(self.hbox_top)
+            self.vbox.addWidget(self.picture_directory_label)
+            self.vbox.addLayout(self.hbox_mid)
             self.vbox.addLayout(self.hbox_buttom)
 
             # Adding widgets to layouts
+            # self.hbox_top.addWidget(self.treeview_model)
+            self.hbox_top.addWidget(self.listview_model)
             self.vbox.addWidget(self.picture_name_label)
-            self.hbox_top.addWidget(self.treeview)
-            self.hbox_top.addWidget(self.listview)
+            self.hbox_mid.addWidget(self.treeview_picture)
+            self.hbox_mid.addWidget(self.listview_picture)
+
             self.hbox_buttom.addWidget(self.picture_label, alignment=Qt.AlignCenter)
             self.hbox_buttom.addWidget(self.prediction_text, alignment=Qt.AlignLeft)
             # self.hbox_buttom.addWidget(self.chartView)
@@ -99,29 +129,38 @@ with tf.device('/CPU:0'):
             self.setSizePolicy(self.sizePolicy)
             self.show()
 
-        def on_treeview_clicked(self, index):
-            path = self.dirModel.fileInfo(index).absoluteFilePath()
-            self.listview.setRootIndex(self.fileModel.setRootPath(path))
+        def on_picture_treeview_clicked(self, index):
+            path = self.dirModel_picture.fileInfo(index).absoluteFilePath()
+            print(path)
+            self.listview_picture.setRootIndex(self.fileModel_picture.setRootPath(path))
+
+        def on_model_treeview_clicked(self, index):
+            path = self.dirModel_model.fileInfo(index).absoluteFilePath()
+            print(path)
+            self.listview_model.setRootIndex(self.fileModel_picture.setRootPath(path))
 
         def is_png(data):
             return data[:8] == '\x89PNG\x0d\x0a\x1a\x0a'
 
-        def on_listview_clicked(self, index):
+        def on_picture_listview_clicked(self, index):
             model = self.getModel()
-            new_picture = self.fileModel.fileInfo(index).absoluteFilePath()
+            new_picture = self.fileModel_picture.fileInfo(index).absoluteFilePath()
             try:
-                im = Image.open(new_picture)
+                Image.open(new_picture)
                 new_prediction = self.makePrediction(model, self.convertPictureToNumpy(new_picture))
 
                 self.picture_name_label.setText(new_picture)
                 self.picture_label.setPixmap(QtGui.QPixmap(new_picture))
                 self.prediction_text.setText("Probability of Negative: %s" % new_prediction[0, 0] +
-                                             "\n\nProbability of benign calcification: %s" % new_prediction[0, 1] +
-                                             "\n\nProbability of benign mass: %s" % new_prediction[0, 2] +
-                                             "\n\nProbability of malignant calcification: %s" % new_prediction[0, 3] +
-                                             "\n\nProbability of malignant mass: %s" % new_prediction[0, 4])
+                                             "\n\nProbability of Benign Calcification: %s" % new_prediction[0, 1] +
+                                             "\n\nProbability of Benign Mass: %s" % new_prediction[0, 2] +
+                                             "\n\nProbability of Malignant Calcification: %s" % new_prediction[0, 3] +
+                                             "\n\nProbability of Malignant Mass: %s" % new_prediction[0, 4])
             except IOError:
                 print('Chosen file is not a picture')
+
+        def on_model_listview_clicked(self, index):
+            print('Hej')
 
         def getModel(self):
             model = Model_Version_2_69f()
