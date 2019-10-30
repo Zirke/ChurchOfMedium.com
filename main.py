@@ -4,7 +4,17 @@ from data_Processing.post_processing import *
 from data_Processing.pre_processing import *
 from data_Processing.binary_pre_processing import *
 from models.Model_Version_2_01c import *
+import os
+import shutil
+import webbrowser
 
+"""
+Get datasets for training, validation, and testing
+process_data(file_path) gives a binary classification dataset, list of all file paths in sorting_hub
+process_dataset() gives dataset for 5 classes dataset 
+
+from data_Processing.binary_pre_processing import *
+"""
 parsed_training_data, parsed_val_data, parsed_testing_data = process_data(five_diagnosis_paths)
 
 FILE_SIZE = len(list(parsed_training_data))  # Training dataset size
@@ -24,6 +34,10 @@ batched_training_data = parsed_training_data.batch(BATCH_SIZE).repeat()  # BATCH
 batched_val_data = parsed_val_data.batch(BATCH_SIZE).repeat()  # BATCH_SIZE
 batched_testing_data = parsed_testing_data.batch(BATCH_SIZE).repeat()  # BATCH_SIZE
 
+# Clear Tensorboard
+if os.path.isdir('logs'):
+    shutil.rmtree('logs')
+
 # initializing the callback
 callback = early_stopping_callback()
 tb_callback = tensorboard_callback("logs", 1)
@@ -41,10 +55,10 @@ model.compile(optimizer='adam',
 
 history = model.fit(
     batched_training_data,
-    steps_per_epoch=FILE_SIZE // BATCH_SIZE,  # FILE_SIZE
+    steps_per_epoch=100 // BATCH_SIZE,  # FILE_SIZE
     validation_data=batched_testing_data,
     validation_steps=TEST_SIZE // BATCH_SIZE,  # TEST_SIZE
-    epochs=10,
+    epochs=1,
     shuffle=True,
     verbose=2,  # ,  # verbose is the progress bar when training
     callbacks=[cp_callback, tb_callback]
@@ -58,3 +72,7 @@ print('test loss, test acc:', results)
 # History displaying training and validation accuracy
 plot_multi_label_predictions(batched_testing_data, model, 10)
 plot_history(history)
+
+# Open Tensorboard
+webbrowser.open('http://localhost:6006/')
+os.system('tensorboard --logdir logs/')
