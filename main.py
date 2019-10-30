@@ -55,10 +55,10 @@ model.compile(optimizer='adam',
 
 history = model.fit(
     batched_training_data,
-    steps_per_epoch=100 // BATCH_SIZE,  # FILE_SIZE
+    steps_per_epoch=FILE_SIZE // BATCH_SIZE,  # FILE_SIZE
     validation_data=batched_testing_data,
     validation_steps=TEST_SIZE // BATCH_SIZE,  # TEST_SIZE
-    epochs=1,
+    epochs=10,
     shuffle=True,
     verbose=2,  # ,  # verbose is the progress bar when training
     callbacks=[cp_callback, tb_callback]
