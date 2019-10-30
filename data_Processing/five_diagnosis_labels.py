@@ -28,8 +28,22 @@ def positive_images_arr(parsed_data):
 
     for image, label in parsed_data:
         if label.numpy() != 0:
-            positive_images.append(image)
-            positive_labels.append(label)
+            if label.numpy() == 1:
+                indicator_variable = tf.convert_to_tensor([0, 1, 0, 0, 0], dtype=tf.int64)
+                positive_images.append(image)
+                positive_labels.append(indicator_variable)
+            elif label.numpy() == 2:
+                indicator_variable = tf.convert_to_tensor([0, 0, 1, 0, 0], dtype=tf.int64)
+                positive_images.append(image)
+                positive_labels.append(indicator_variable)
+            elif label.numpy() == 3:
+                indicator_variable = tf.convert_to_tensor([0, 0, 0, 1, 0], dtype=tf.int64)
+                positive_images.append(image)
+                positive_labels.append(indicator_variable)
+            elif label.numpy() == 4:
+                indicator_variable = tf.convert_to_tensor([0, 0, 0, 0, 1], dtype=tf.int64)
+                positive_images.append(image)
+                positive_labels.append(indicator_variable)
 
     return positive_images, positive_labels
 
@@ -42,8 +56,9 @@ def negative_images_arr(parsed_data, n):
         if len(negative_labels) == (n // 100) * 3:
             return negative_images, negative_labels
         elif label.numpy() == 0:
+            indicator_variable = tf.convert_to_tensor([1, 0, 0, 0, 0], dtype=tf.int64)
             negative_images.append(image)
-            negative_labels.append(label)
+            negative_labels.append(indicator_variable)
             negative_count += 1
 
     return negative_images, negative_labels
