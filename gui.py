@@ -1,3 +1,4 @@
+import os
 import sys
 
 import PyQt5
@@ -10,6 +11,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QFileDialog, QLabel, QVBoxLay
     QFileSystemModel, QTreeView, QTextEdit, QListView, QSizePolicy
 
 from models.Model_Version_1_01 import *
+from models.Model_Version_1_04c import *
 
 # Makes the application scale correct on all resolutions
 PyQt5.QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
@@ -29,7 +31,9 @@ with tf.device('/CPU:0'):
 
         def initUI(self):
             input_image = self.getFileName()
-            prediction = self.makePrediction(self.getModel(), self.convertPictureToNumpy(input_image))
+
+            model = Model_Version_1_01()
+            prediction = self.makePrediction(model, self.convertPictureToNumpy(input_image))
 
             # Widget for showing picture. The QLabel gets a Pixmap added to it
             self.picture_name_label = QLabel(input_image)
@@ -73,24 +77,14 @@ with tf.device('/CPU:0'):
 
             # Tree and List view for file directory overview of models
             self.model_directory_label = QLabel('Select a Model:')
-            model_path = '\trained_Models'
-            # self.treeview_model = QTreeView()
+            model_path = 'trained_Models\\'
             self.listview_model = QListView()
-
             self.dirModel_model = QFileSystemModel()
             self.dirModel_model.setRootPath(model_path)
             self.dirModel_model.setFilter(QDir.NoDotAndDotDot | QDir.AllDirs)
 
-            self.fileModel_model = QFileSystemModel()
-            self.fileModel_model.setFilter(QDir.NoDotAndDotDot | QDir.Files)
-
-            # self.treeview_model.setModel(self.dirModel_model)
-            self.listview_model.setModel(self.fileModel_model)
-
-            # self.treeview_model.setRootIndex(self.dirModel_model.index(model_path))
-            # self.treeview_model.setColumnWidth(0, 180)
-            self.listview_model.setRootIndex(self.fileModel_model.index(model_path))
-            # self.treeview_model.clicked.connect(self.on_model_treeview_clicked)
+            self.listview_model.setModel(self.dirModel_model)
+            self.listview_model.setRootIndex(self.dirModel_model.index(model_path))
             self.listview_model.clicked.connect(self.on_model_listview_clicked)
 
             # Layout handling.
@@ -127,21 +121,20 @@ with tf.device('/CPU:0'):
 
         def on_picture_treeview_clicked(self, index):
             path = self.dirModel_picture.fileInfo(index).absoluteFilePath()
-            print(path)
             self.listview_picture.setRootIndex(self.fileModel_picture.setRootPath(path))
-
-        def on_model_treeview_clicked(self, index):
-            path = self.dirModel_model.fileInfo(index).absoluteFilePath()
-            print(path)
-            self.listview_model.setRootIndex(self.fileModel_picture.setRootPath(path))
 
         def is_png(data):
             return data[:8] == '\x89PNG\x0d\x0a\x1a\x0a'
 
         def on_picture_listview_clicked(self, index):
-            model = self.getModel()
-            new_picture = self.fileModel_picture.fileInfo(index).absoluteFilePath()
             try:
+                selected_model_path = self.dirModel_model.fileInfo(index).absoluteFilePath()
+                selected_model_name = os.path.split(selected_model_path)
+                split = selected_model_name[1].split('_')
+                selected_model_version = split[0] + '_' + split[1] + '_' + split[2] + '_' + split[3]
+                model = self.getModel(selected_model_version, selected_model_path)
+
+                new_picture = self.fileModel_picture.fileInfo(index).absoluteFilePath()
                 Image.open(new_picture)
                 new_prediction = self.makePrediction(model, self.convertPictureToNumpy(new_picture))
 
@@ -156,13 +149,29 @@ with tf.device('/CPU:0'):
                 print('Chosen file is not a picture')
 
         def on_model_listview_clicked(self, index):
-            print('Hej')
+            print("hej")
+            # selected_model_path = self.dirModel_model.fileInfo(index).absoluteFilePath()
+            # selected_model_name = os.path.split(selected_model_path)
+            # split = selected_model_name[1].split('_')
+            # selected_model_version = split[0] + '_' + split[1] + '_' + split[2] + '_' + split[3]
+            # print('Model path: ' + selected_model_path)
+            # print('Model name: ' + selected_model_name[1])
+            # print('Model type: ' + selected_model_version)
+            # module = __import__('models')
+            # selected_model = self.getModel(selected_model_version, selected_model_path)
 
-        def getModel(self):
-            model = Model_Version_1_01()
-            checkpoint_path = "trained_Models/model_Version_22-10-2019-H09M51/cp.ckpt"
+        def getModel(self, model_version, model_path):
+            model = globals()[model_version]()
+            print(model)
+            checkpoint_path = model_path + '/cp.ckpt'
             model.load_weights(checkpoint_path)
             return model
+
+        # def getModel(self):
+        #     model = Model_Version_1_01()
+        #     checkpoint_path = "trained_Models/model_Version_22-10-2019-H09M51/cp.ckpt"
+        #     model.load_weights(checkpoint_path)
+        #     return model
 
         def makePrediction(self, input_model, input_picture):
             image = tf.reshape(input_picture, [-1, 299, 299, 1])
