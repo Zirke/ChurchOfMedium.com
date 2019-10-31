@@ -149,19 +149,19 @@ with tf.device('/CPU:0'):
                 print('Chosen file is not a picture')
 
         def on_model_listview_clicked(self, index):
-            print("hej")
-            # selected_model_path = self.dirModel_model.fileInfo(index).absoluteFilePath()
-            # selected_model_name = os.path.split(selected_model_path)
-            # split = selected_model_name[1].split('_')
-            # selected_model_version = split[0] + '_' + split[1] + '_' + split[2] + '_' + split[3]
-            # print('Model path: ' + selected_model_path)
-            # print('Model name: ' + selected_model_name[1])
-            # print('Model type: ' + selected_model_version)
+            selected_model_path = self.dirModel_model.fileInfo(index).absoluteFilePath()
+            selected_model_name = os.path.split(selected_model_path)
+            split = selected_model_name[1].split('_')
+            selected_model_version = split[0] + '_' + split[1] + '_' + split[2] + '_' + split[3]
+            print('Model path: ' + selected_model_path)
+            print('Model name: ' + selected_model_name[1])
+            print('Model type: ' + selected_model_version)
             # module = __import__('models')
-            # selected_model = self.getModel(selected_model_version, selected_model_path)
+            selected_model = self.getModel(selected_model_version, selected_model_path)
 
         def getModel(self, model_version, model_path):
-            model = globals()[model_version]()
+            model = getattr(sys.modules[__name__], model_version)()
+            # model = globals()[model_version]()
             print(model)
             checkpoint_path = model_path + '/cp.ckpt'
             model.load_weights(checkpoint_path)

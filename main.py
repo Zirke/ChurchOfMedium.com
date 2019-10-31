@@ -37,15 +37,17 @@ with tf.device('/CPU:0'):
     batched_val_data = parsed_val_data.batch(BATCH_SIZE).repeat()  # BATCH_SIZE
     batched_testing_data = parsed_testing_data.batch(BATCH_SIZE).repeat()  # BATCH_SIZE
 
-    # initializing the callback
-    callback = early_stopping_callback()
-    tb_callback = tensorboard_callback("logs", 1)
-    cp_callback = checkpoint_callback()
-
     model = Model_Version_1_04c()
     model.compile(optimizer='adam',
                   loss='sparse_categorical_crossentropy',
                   metrics=['accuracy'])
+
+    # initializing the callback
+    callback = early_stopping_callback()
+    tb_callback = tensorboard_callback("logs", 1)
+    model_string = str(model).split(".")
+    cp_callback = checkpoint_callback(str(model_string[len(model_string) - 2]))
+
 
     if __name__ == '__main__':
         sub = Model_Version_1_01()
