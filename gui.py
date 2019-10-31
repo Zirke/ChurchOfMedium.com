@@ -1,6 +1,4 @@
-import os
-import sys
-
+import tensorflow as tf
 import PyQt5
 import numpy as np
 from PIL import Image
@@ -10,14 +8,16 @@ from PyQt5.QtCore import QDir
 from PyQt5.QtWidgets import QApplication, QWidget, QFileDialog, QLabel, QVBoxLayout, QHBoxLayout, \
     QFileSystemModel, QTreeView, QTextEdit, QListView, QSizePolicy
 
-from models.Model_Version_1_01 import *
-from models.Model_Version_1_04c import *
+from models import *
 
 # Makes the application scale correct on all resolutions
 PyQt5.QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
 
+currently_selected_model = Model_Version_1_04c()
+
 with tf.device('/CPU:0'):
     class App(QWidget):
+
         def __init__(self):
             super().__init__()
             self.left = 100
@@ -32,7 +32,10 @@ with tf.device('/CPU:0'):
         def initUI(self):
             input_image = self.getFileName()
 
-            model = Model_Version_1_01()
+            model = Model_Version_1_04c()
+            checkpoint_path = 'trained_Models/Model_Version_1_04c_31-10-2019-H12M47/cp.ckpt'
+            model.load_weights(checkpoint_path)
+
             prediction = self.makePrediction(model, self.convertPictureToNumpy(input_image))
 
             # Widget for showing picture. The QLabel gets a Pixmap added to it
@@ -128,15 +131,9 @@ with tf.device('/CPU:0'):
 
         def on_picture_listview_clicked(self, index):
             try:
-                selected_model_path = self.dirModel_model.fileInfo(index).absoluteFilePath()
-                selected_model_name = os.path.split(selected_model_path)
-                split = selected_model_name[1].split('_')
-                selected_model_version = split[0] + '_' + split[1] + '_' + split[2] + '_' + split[3]
-                model = self.getModel(selected_model_version, selected_model_path)
-
                 new_picture = self.fileModel_picture.fileInfo(index).absoluteFilePath()
                 Image.open(new_picture)
-                new_prediction = self.makePrediction(model, self.convertPictureToNumpy(new_picture))
+                new_prediction = self.makePrediction(currently_selected_model, self.convertPictureToNumpy(new_picture))
 
                 self.picture_name_label.setText(new_picture)
                 self.picture_label.setPixmap(QtGui.QPixmap(new_picture))
@@ -153,11 +150,13 @@ with tf.device('/CPU:0'):
             selected_model_name = os.path.split(selected_model_path)
             split = selected_model_name[1].split('_')
             selected_model_version = split[0] + '_' + split[1] + '_' + split[2] + '_' + split[3]
-            print('Model path: ' + selected_model_path)
-            print('Model name: ' + selected_model_name[1])
-            print('Model type: ' + selected_model_version)
+            # print('Model path: ' + selected_model_path)
+            # print('Model name: ' + selected_model_name[1])
+            # print('Model type: ' + selected_model_version)
             # module = __import__('models')
-            selected_model = self.getModel(selected_model_version, selected_model_path)
+            global currently_selected_model
+            currently_selected_model = self.getModel(selected_model_version, selected_model_path)
+            # print(getattr(sys.modules[__name__], selected_model_version)())
 
         def getModel(self, model_version, model_path):
             model = getattr(sys.modules[__name__], model_version)()
