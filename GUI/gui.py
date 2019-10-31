@@ -14,10 +14,10 @@ from models import *
 PyQt5.QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
 
 currently_selected_model = Model_Version_1_04c()
+currently_selected_picture = 'Currently No Image Selected'
 
 with tf.device('/CPU:0'):
     class App(QWidget):
-
         def __init__(self):
             super().__init__()
             self.left = 100
@@ -30,59 +30,69 @@ with tf.device('/CPU:0'):
             self.initUI()
 
         def initUI(self):
-            input_image = self.getFileName()
-
-            model = Model_Version_1_04c()
-            checkpoint_path = 'trained_Models/Model_Version_1_04c_31-10-2019-H12M47/cp.ckpt'
-            model.load_weights(checkpoint_path)
-
-            prediction = self.makePrediction(model, self.convertPictureToNumpy(input_image))
+            # input_image = self.getFileName()
+            # global currently_selected_picture
+            # currently_selected_picture = input_image
 
             # Widget for showing picture. The QLabel gets a Pixmap added to it
-            self.picture_name_label = QLabel(input_image)
-            self.picture_label = QLabel(self)
-            self.picture = QtGui.QPixmap(input_image)
-            self.picture_label.setPixmap(self.picture)
-            self.picture_label.adjustSize()
-
-            # Widget for adding prediction text
+            self.picture_name_label = QLabel(currently_selected_picture)
+            self.picture_label = QLabel()
             self.prediction_text = QTextEdit()
-            self.prediction_text.append("Probability of Negative: %s" % prediction[0, 0] +
-                                        "\n\nProbability of benign calcification: %s" % prediction[0, 1] +
-                                        "\n\nProbability of benign mass: %s" % prediction[0, 2] +
-                                        "\n\nProbability of malignant calcification: %s" % prediction[0, 3] +
-                                        "\n\nProbability of malignant mass: %s" % prediction[0, 4])
             self.prediction_text.setReadOnly(True)
-            # self.prediction_text.setMaximumSize(400, 299)
-            # self.prediction_text.setMinimumSize(400, 299)
+
+            if currently_selected_picture == 'Currently No Image Selected':
+                self.picture = QtGui.QPixmap('GUI/no_image_selected.png')
+                self.prediction_text.append('')
+                self.prediction_text.setDisabled(True)
+            else:
+                model = Model_Version_1_04c()
+                checkpoint_path = 'trained_Models/Model_Version_1_04c_30-10-2019-H20M16/cp.ckpt'
+                model.load_weights(checkpoint_path)
+                prediction = self.makePrediction(model, self.convertPictureToNumpy(currently_selected_picture))
+
+                self.picture = QtGui.QPixmap(currently_selected_picture)
+
+                self.prediction_text.append("Probability of Negative: %s" % prediction[0, 0] +
+                                            "\n\nProbability of benign calcification: %s" % prediction[0, 1] +
+                                            "\n\nProbability of benign mass: %s" % prediction[0, 2] +
+                                            "\n\nProbability of malignant calcification: %s" % prediction[0, 3] +
+                                            "\n\nProbability of malignant mass: %s" % prediction[0, 4])
+
+            self.resized_picture = self.picture.scaled(299, 299, Qt.KeepAspectRatio, Qt.FastTransformation)
+            self.picture_label.setPixmap(self.resized_picture)
 
             # Tree and List view for file directory overview of pictures
             self.picture_directory_label = QLabel('Select a Picture:')
-            picture_path = '\pictures'
+            picture_dir_path = '\pictures'
+            picture_file_path = 'pictures\\'
             self.treeview_picture = QTreeView()
             self.listview_picture = QListView()
 
             self.dirModel_picture = QFileSystemModel()
-            self.dirModel_picture.setRootPath(picture_path)
+            self.dirModel_picture.setRootPath(picture_dir_path)
             self.dirModel_picture.setFilter(QDir.NoDotAndDotDot | QDir.AllDirs)
 
             self.fileModel_picture = QFileSystemModel()
+            self.fileModel_picture.setRootPath(picture_file_path)
             self.fileModel_picture.setFilter(QDir.NoDotAndDotDot | QDir.Files)
 
             self.treeview_picture.setModel(self.dirModel_picture)
             self.listview_picture.setModel(self.fileModel_picture)
 
-            self.treeview_picture.setRootIndex(self.dirModel_picture.index(picture_path))
-            self.treeview_picture.setColumnWidth(0, 180)
-            self.listview_picture.setRootIndex(self.fileModel_picture.index(picture_path))
+            self.treeview_picture.setRootIndex(self.dirModel_picture.index(picture_dir_path))
+            self.listview_picture.setRootIndex(self.fileModel_picture.index(picture_file_path))
+            self.treeview_picture.setCurrentIndex(self.dirModel_picture.index(0, 0))
+
             self.treeview_picture.clicked.connect(self.on_picture_treeview_clicked)
             self.listview_picture.clicked.connect(self.on_picture_listview_clicked)
+            self.treeview_picture.setColumnWidth(0, 180)
 
             # Tree and List view for file directory overview of models
             self.model_directory_label = QLabel('Select a Model:')
             model_path = 'trained_Models\\'
             self.listview_model = QListView()
             self.dirModel_model = QFileSystemModel()
+
             self.dirModel_model.setRootPath(model_path)
             self.dirModel_model.setFilter(QDir.NoDotAndDotDot | QDir.AllDirs)
 
@@ -104,7 +114,6 @@ with tf.device('/CPU:0'):
             self.vbox.addLayout(self.hbox_buttom)
 
             # Adding widgets to layouts
-            # self.hbox_top.addWidget(self.treeview_model)
             self.hbox_top.addWidget(self.listview_model)
             self.vbox.addWidget(self.picture_name_label)
             self.hbox_mid.addWidget(self.treeview_picture)
@@ -112,8 +121,6 @@ with tf.device('/CPU:0'):
 
             self.hbox_buttom.addWidget(self.picture_label, alignment=Qt.AlignCenter)
             self.hbox_buttom.addWidget(self.prediction_text, alignment=Qt.AlignLeft)
-            # self.hbox_buttom.addWidget(self.chartView)
-            # self.vbox.addWidget(self.button)
 
             # p = self.palette()
             # p.setColor(self.backgroundRole(), Qt.white)
@@ -130,13 +137,15 @@ with tf.device('/CPU:0'):
             return data[:8] == '\x89PNG\x0d\x0a\x1a\x0a'
 
         def on_picture_listview_clicked(self, index):
+            self.prediction_text.setDisabled(False)
             try:
-                new_picture = self.fileModel_picture.fileInfo(index).absoluteFilePath()
-                Image.open(new_picture)
-                new_prediction = self.makePrediction(currently_selected_model, self.convertPictureToNumpy(new_picture))
-
-                self.picture_name_label.setText(new_picture)
-                self.picture_label.setPixmap(QtGui.QPixmap(new_picture))
+                global currently_selected_picture
+                currently_selected_picture = self.fileModel_picture.fileInfo(index).absoluteFilePath()
+                Image.open(currently_selected_picture)
+                new_prediction = self.makePrediction(currently_selected_model,
+                                                     self.convertPictureToNumpy(currently_selected_picture))
+                self.picture_name_label.setText(currently_selected_picture)
+                self.picture_label.setPixmap(QtGui.QPixmap(currently_selected_picture))
                 self.prediction_text.setText("Probability of Negative: %s" % new_prediction[0, 0] +
                                              "\n\nProbability of Benign Calcification: %s" % new_prediction[0, 1] +
                                              "\n\nProbability of Benign Mass: %s" % new_prediction[0, 2] +
@@ -150,27 +159,14 @@ with tf.device('/CPU:0'):
             selected_model_name = os.path.split(selected_model_path)
             split = selected_model_name[1].split('_')
             selected_model_version = split[0] + '_' + split[1] + '_' + split[2] + '_' + split[3]
-            # print('Model path: ' + selected_model_path)
-            # print('Model name: ' + selected_model_name[1])
-            # print('Model type: ' + selected_model_version)
-            # module = __import__('models')
             global currently_selected_model
             currently_selected_model = self.getModel(selected_model_version, selected_model_path)
-            # print(getattr(sys.modules[__name__], selected_model_version)())
 
         def getModel(self, model_version, model_path):
             model = getattr(sys.modules[__name__], model_version)()
-            # model = globals()[model_version]()
-            print(model)
             checkpoint_path = model_path + '/cp.ckpt'
             model.load_weights(checkpoint_path)
             return model
-
-        # def getModel(self):
-        #     model = Model_Version_1_01()
-        #     checkpoint_path = "trained_Models/model_Version_22-10-2019-H09M51/cp.ckpt"
-        #     model.load_weights(checkpoint_path)
-        #     return model
 
         def makePrediction(self, input_model, input_picture):
             image = tf.reshape(input_picture, [-1, 299, 299, 1])
