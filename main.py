@@ -42,7 +42,8 @@ if os.path.isdir('logs'):
 es_callback = early_stopping_callback('val_loss', 5)
 ms_callback = manual_stopping_callback()
 tb_callback = tensorboard_callback("logs", 1)
-cp_callback = checkpoint_callback()
+model_string = str(model).split(".")
+cp_callback = checkpoint_callback(str(model_string[len(model_string) - 2]))
 
 model = Model_Version_2_01c()
 
