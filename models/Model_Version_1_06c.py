@@ -3,9 +3,9 @@ from tensorflow.keras import Model
 from tensorflow.keras.layers import Dense, Flatten, Conv2D, MaxPooling2D, ZeroPadding2D, Input, Dropout
 
 
-class Model_Version_2_05c(tf.keras.Model):
+class Model_Version_1_06c(tf.keras.Model):
     def __init__(self):
-        super(Model_Version_2_05c, self).__init__()
+        super(Model_Version_1_06c, self).__init__()
 
         # first convolutional layer
         self.conv_layer_1 = Conv2D(32,  # filters

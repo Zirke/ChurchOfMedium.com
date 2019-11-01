@@ -105,7 +105,7 @@ class Model_Version_2_05c(tf.keras.Model):
                                        data_format=None)
         self.flatten = Flatten()
 
-        self.fc_layer_1 = Dense(512,  # Amount of neurons
+        self.fc_layer_1 = Dense(256,  # Amount of neurons
                                 activation='relu',  # Activation function
                                 use_bias=True,  # bias is enabled
                                 bias_initializer='zeros',  # initialisation of bias
@@ -114,7 +114,7 @@ class Model_Version_2_05c(tf.keras.Model):
                                 bias_constraint=None)  #
 
         # Dense is a fully connected layer
-        self.fc_layer_2 = Dense(512,  # Amount of neurons
+        self.fc_layer_2 = Dense(256,  # Amount of neurons
                                 activation='relu',  # Activation function
                                 use_bias=True,  # bias is enabled
                                 bias_initializer='zeros',  # initialisation of bias
