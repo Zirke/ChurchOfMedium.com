@@ -54,7 +54,7 @@ if __name__ == '__main__':
 
 model.compile(optimizer='adam',
               loss='categorical_crossentropy',
-              metrics=['accuracy'])
+              metrics=['accuracy', tf.keras.metrics.Precision(), tf.keras.metrics.Recall()])
 
 history = model.fit(
     batched_training_data,
