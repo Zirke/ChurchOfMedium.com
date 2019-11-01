@@ -45,7 +45,7 @@ with tf.device('/CPU:0'):
     callback = early_stopping_callback()
     tb_callback = tensorboard_callback("logs", 1)
     model_string = str(model).split(".")
-    cp_callback = checkpoint_callback(str(model_string[len(model_string) - 2]))
+    cp_callback = checkpoint_callback(str(model_string[len(model_string) - 2]), 'five')
 
 
     if __name__ == '__main__':
