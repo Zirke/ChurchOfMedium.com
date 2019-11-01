@@ -3,9 +3,9 @@ from tensorflow.keras import Model
 from tensorflow.keras.layers import Dense, Flatten, Conv2D, MaxPooling2D, ZeroPadding2D, Input
 
 
-class Model_Version_1_02S(tf.keras.Model):
+class Model_Version_1_02(tf.keras.Model):
     def __init__(self):
-        super(Model_Version_1_02S, self).__init__()
+        super(Model_Version_1_02, self).__init__()
 
         # Adding 2 layers of padding on each side, temporarily making the image 303x303
         self.padding = ZeroPadding2D(padding=(2, 2),  # Amount of Zeros on each side of the input
@@ -14,7 +14,7 @@ class Model_Version_1_02S(tf.keras.Model):
         # first convolutional layer
         self.conv1 = Conv2D(32,  # filters
                             (3, 3),  # Kernel size
-                            strides=(2, 2),  # Stride
+                            strides=(1, 1),  # Stride
                             padding='valid',  # Same refers to same padding as previous layer.
                             data_format=None,
                             # It should be defined if the dimensions are structured in non standard approach
@@ -38,7 +38,7 @@ class Model_Version_1_02S(tf.keras.Model):
         # Second convolutional layer
         self.conv2 = Conv2D(64,  # filters
                             (3, 3),  # Kernel size
-                            strides=(2, 2),  # Stride
+                            strides=(1, 1),  # Stride
                             padding='same',  # Same refers to same padding as previous layer.
                             data_format=None,
                             # It should be defined if the dimensions are structured in non standard approach
@@ -57,7 +57,7 @@ class Model_Version_1_02S(tf.keras.Model):
         # 3rd convolutional layer
         self.conv3 = Conv2D(128,  # filters
                             (3, 3),  # Kernel size
-                            strides=(2, 2),  # Stride
+                            strides=(1, 1),  # Stride
                             padding='same',  # Same refers to same padding as previous layer.
                             data_format=None,
                             # It should be defined if the dimensions are structured in non standard approach
@@ -81,7 +81,7 @@ class Model_Version_1_02S(tf.keras.Model):
         self.flatten = Flatten()
 
         # Dense is a fully connected layer
-        self.d1 = Dense(512,  # Amount of neurons
+        self.d1 = Dense(128,  # Amount of neurons
                         activation='relu',  # Activation function
                         use_bias=True,  # bias is enabled
                         bias_initializer='zeros',  # initialisation of bias
@@ -90,7 +90,7 @@ class Model_Version_1_02S(tf.keras.Model):
                         bias_constraint=None)  #
 
         # Dense is a fully connected layer
-        self.d2 = Dense(512,  # Amount of neurons
+        self.d2 = Dense(128,  # Amount of neurons
                         activation='relu',  # Activation function
                         use_bias=True,  # bias is enabled
                         bias_initializer='zeros',  # initialisation of bias
