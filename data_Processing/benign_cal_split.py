@@ -44,7 +44,7 @@ def non_benign_images(parsed_data, n):
 
     for image, label in parsed_data:
         # Twice as many non-benign calcification as benign calcification
-        if len(non_benign_labels) == n * 2:
+        if len(non_benign_labels) == n:
             return non_benign_image, non_benign_labels
         elif label.numpy() == 0 and negative_count < n // 100 * 30:
             indicator_variable = tf.convert_to_tensor([1, 0], dtype=tf.int64)
@@ -55,6 +55,10 @@ def non_benign_images(parsed_data, n):
         elif 1 != label.numpy() != 0:
             indicator_variable = tf.convert_to_tensor([1, 0], dtype=tf.int64)  # All other labels should be 0
             non_benign_image.append(image)
+            non_benign_image.append(one_flip_image(image))
+            non_benign_image.append(one_rotate_image(image))
+            non_benign_labels.append(indicator_variable)
+            non_benign_labels.append(indicator_variable)
             non_benign_labels.append(indicator_variable)
 
     return non_benign_image, non_benign_labels
