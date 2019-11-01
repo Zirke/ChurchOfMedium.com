@@ -1,14 +1,13 @@
-# from models.sequential_model import *
+import tensorflow as tf
 from sorting_hub import *
 # from sorting_hub import *
 from callback import *
 from data_Processing.post_processing import *
 from data_Processing.pre_processing import *
 from data_Processing.binary_pre_processing import *
-# from models.sequential_model import *
-from models.Model_Version_1_01 import *
-from models.Model_version_1_02 import *
-from models.Model_Version_1_04c import *
+from models import *
+
+import keras_metrics
 
 """
 Get datasets for training, validation, and testing
@@ -37,10 +36,10 @@ with tf.device('/CPU:0'):
     batched_val_data = parsed_val_data.batch(BATCH_SIZE).repeat()  # BATCH_SIZE
     batched_testing_data = parsed_testing_data.batch(BATCH_SIZE).repeat()  # BATCH_SIZE
 
-    model = Model_Version_1_04c()
+    model = Model_Version_1_02S()
     model.compile(optimizer='adam',
                   loss='sparse_categorical_crossentropy',
-                  metrics=['accuracy'])
+                  metrics=[keras_metrics.precision(), keras_metrics.recall(), 'accuracy'])
 
     # initializing the callback
     callback = early_stopping_callback()
@@ -50,7 +49,7 @@ with tf.device('/CPU:0'):
 
 
     if __name__ == '__main__':
-        sub = Model_Version_1_01()
+        sub = Model_Version_1_02S()
         sub.model().summary()
 
 history = model.fit(
