@@ -85,7 +85,8 @@ with tf.device('/CPU:0'):
 
             self.treeview_picture.clicked.connect(self.on_picture_treeview_clicked)
             self.listview_picture.clicked.connect(self.on_picture_listview_clicked)
-            self.treeview_picture.setColumnWidth(0, 180)
+            self.treeview_picture.setColumnHidden(1, True)
+            self.treeview_picture.setColumnWidth(0, 275)
 
             # Tree and List view for file directory overview of models
             self.model_directory_label = QLabel('Select a Model:')
@@ -102,29 +103,29 @@ with tf.device('/CPU:0'):
 
             # Layout handling.
             self.vbox = QVBoxLayout()
-            self.hbox_top = QHBoxLayout()
-            self.hbox_mid = QHBoxLayout()
-            self.hbox_buttom = QHBoxLayout()
-            self.setLayout(self.vbox)  # This vbox is the outer layer
+            self.vbox_left = QVBoxLayout()
+            self.vbox_right = QVBoxLayout()
+            self.hbox_outer = QHBoxLayout()
+            self.hbox_inner = QHBoxLayout()
 
-            self.vbox.addWidget(self.model_directory_label)
-            self.vbox.addLayout(self.hbox_top)
-            self.vbox.addWidget(self.picture_directory_label)
-            self.vbox.addLayout(self.hbox_mid)
-            self.vbox.addLayout(self.hbox_buttom)
+            self.vbox.addLayout(self.hbox_outer)
+            self.hbox_outer.addLayout(self.vbox_left)
+            self.hbox_outer.addLayout(self.vbox_right)
+            self.vbox_left.addWidget(self.model_directory_label)
+            self.vbox_left.addWidget(self.listview_model)
+            self.vbox_left.addWidget(self.picture_directory_label)
+            self.vbox_left.addLayout(self.hbox_inner)
+            self.hbox_inner.addWidget(self.treeview_picture)
+            self.hbox_inner.addWidget(self.listview_picture)
 
-            # Adding widgets to layouts
-            self.hbox_top.addWidget(self.listview_model)
-            self.vbox.addWidget(self.picture_name_label)
-            self.hbox_mid.addWidget(self.treeview_picture)
-            self.hbox_mid.addWidget(self.listview_picture)
-
-            self.hbox_buttom.addWidget(self.picture_label, alignment=Qt.AlignCenter)
-            self.hbox_buttom.addWidget(self.prediction_text, alignment=Qt.AlignLeft)
+            self.vbox_right.addWidget(self.picture_name_label)
+            self.vbox_right.addWidget(self.picture_label)
+            self.vbox_right.addWidget(self.prediction_text)
 
             # p = self.palette()
             # p.setColor(self.backgroundRole(), Qt.white)
             # self.setPalette(p)
+            self.setLayout(self.vbox)  # This vbox is the outer layer
             self.sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
             self.setSizePolicy(self.sizePolicy)
             self.show()
