@@ -54,4 +54,5 @@ five_diagnosis_paths = ['sorted_tfrecords/five_diagnosis_split_training.tfrecord
 # # Creates 3 files of MALIGNANT MASS, train, val, test. Roughly ~1.2gb data.
 # binary_classification(malignant_mass_split_paths, sorting_algorithms[4])
 #
+# with tf.device('/CPU:0'):
 # binary_classification(five_diagnosis_paths, sorting_algorithms[5])
