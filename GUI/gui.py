@@ -14,6 +14,7 @@ from models import *
 PyQt5.QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
 
 currently_selected_model = None
+currently_selected_model_name = None
 currently_selected_picture = 'Currently No Image Selected'
 
 with tf.device('/CPU:0'):
@@ -23,7 +24,7 @@ with tf.device('/CPU:0'):
             self.left = 100
             self.top = 100
             self.width = 1500
-            self.height = 800
+            self.height = 683
             self.setWindowTitle('Mammogram Prediction')
             self.setGeometry(self.left, self.top, self.width, self.height)
 
@@ -149,8 +150,9 @@ with tf.device('/CPU:0'):
 
         def on_picture_listview_clicked(self, index):
             global currently_selected_model
+            global currently_selected_model_name
             global currently_selected_picture
-            print("JDSKA" + currently_selected_model)
+
             currently_selected_picture = self.fileModel_picture.fileInfo(index).absoluteFilePath()
             try:
                 Image.open(currently_selected_picture)
@@ -161,21 +163,22 @@ with tf.device('/CPU:0'):
             if currently_selected_model is not None:
                 new_prediction = self.makePrediction(currently_selected_model,
                                                      self.convertPictureToNumpy(currently_selected_picture))
-                self.show_five_prediction(new_prediction)
-                print("JDSKA" + currently_selected_model)
-                # if split[4] == 'mc':
-                #     self.show_binary_prediction(new_prediction, split[4])
-                # else:
-                #     self.show_five_prediction(new_prediction)
+                split = currently_selected_model_name.split('_')
+                if split[4] in ('neg', 'bc', 'bm', 'mc', 'mm'):
+                    self.show_binary_prediction(new_prediction, split[4])
+                else:
+                    self.show_five_prediction(new_prediction)
             else:
-                self.prediction_text.setText('No Model is Chosen for Prediction. Choose one to the Right.')
+                self.prediction_text.setText('No Model is Chosen for Prediction. Choose one to the left.')
 
         def on_model_listview_clicked(self, index):
             global currently_selected_model
+            global currently_selected_model_name
             global currently_selected_picture
 
             selected_model_path = self.dirModel_model.fileInfo(index).absoluteFilePath()
             selected_model_name = os.path.split(selected_model_path)
+            currently_selected_model_name = selected_model_name[1]
             split = selected_model_name[1].split('_')
             selected_model_version = split[0] + '_' + split[1] + '_' + split[2] + '_' + split[3]
             currently_selected_model = self.getModel(selected_model_version, selected_model_path)
@@ -189,26 +192,25 @@ with tf.device('/CPU:0'):
 
         def on_model_binary_listview_clicked(self, index):
             global currently_selected_model
+            global currently_selected_model_name
             global currently_selected_picture
 
             selected_model_path = self.dirModel_model_binary.fileInfo(index).absoluteFilePath()
             selected_model_name = os.path.split(selected_model_path)
+            currently_selected_model_name = selected_model_name[1]
             split = selected_model_name[1].split('_')
             selected_model_category = split[4]
             selected_model_version = split[0] + '_' + split[1] + '_' + split[2] + '_' + split[3]
             currently_selected_model = self.getModel(selected_model_version, selected_model_path)
             # print(selected_model_name[1])
             # print(currently_selected_model)
-
+            # print(currently_selected_model_name)
             if currently_selected_picture != 'Currently No Image Selected':
                 new_prediction = self.makePrediction(currently_selected_model,
                                                      self.convertPictureToNumpy(currently_selected_picture))
                 self.picture_name_label.setText(currently_selected_picture)
                 self.picture_label.setPixmap(QtGui.QPixmap(currently_selected_picture))
                 self.show_binary_prediction(new_prediction, selected_model_category)
-            else:
-                print(currently_selected_model.__class__.__name__)
-                print("No picture has been selected")
 
         def getModel(self, model_version, model_path):
             model = getattr(sys.modules[__name__], model_version)()
