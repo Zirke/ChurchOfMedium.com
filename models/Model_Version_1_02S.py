@@ -3,9 +3,9 @@ from tensorflow.keras import Model
 from tensorflow.keras.layers import Dense, Flatten, Conv2D, MaxPooling2D, ZeroPadding2D, Input
 
 
-class Model_Version_1_02(tf.keras.Model):
+class Model_Version_1_02S(tf.keras.Model):
     def __init__(self):
-        super(Model_Version_1_02, self).__init__()
+        super(Model_Version_1_02S, self).__init__()
 
         # Adding 2 layers of padding on each side, temporarily making the image 303x303
         self.padding = ZeroPadding2D(padding=(2, 2),  # Amount of Zeros on each side of the input

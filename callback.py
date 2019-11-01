@@ -23,7 +23,7 @@ def checkpoint_callback(model):
         print("Model with datetime" + i + " already exists")
         sys.exit()
     else:
-        checkpoint_path = "trained_Models/"+ model + "_" + i + "/cp.ckpt"
+        checkpoint_path = "trained_Models/" + model + "_" + i + "/cp.ckpt"
 
     return tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,
                                               save_weights_only=True,
