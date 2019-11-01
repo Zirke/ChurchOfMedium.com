@@ -13,7 +13,7 @@ from models import *
 # Makes the application scale correct on all resolutions
 PyQt5.QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
 
-currently_selected_model = Model_Version_1_04c()
+currently_selected_model = None
 currently_selected_picture = 'Currently No Image Selected'
 
 with tf.device('/CPU:0'):
@@ -22,7 +22,7 @@ with tf.device('/CPU:0'):
             super().__init__()
             self.left = 100
             self.top = 100
-            self.width = 1050
+            self.width = 1500
             self.height = 800
             self.setWindowTitle('Mammogram Prediction')
             self.setGeometry(self.left, self.top, self.width, self.height)
@@ -30,36 +30,20 @@ with tf.device('/CPU:0'):
             self.initUI()
 
         def initUI(self):
-            # input_image = self.getFileName()
-            # global currently_selected_picture
-            # currently_selected_picture = input_image
-
-            # Widget for showing picture. The QLabel gets a Pixmap added to it
+            # Widget for showing picture. The QLabel gets a Pixmap added to it to show picture
             self.picture_name_label = QLabel(currently_selected_picture)
+            self.selected_picture_label = QLabel('Currently Selected Picture:')
             self.picture_label = QLabel()
             self.prediction_text = QTextEdit()
             self.prediction_text.setReadOnly(True)
+            self.prediction_text.setFontPointSize(9)
 
-            if currently_selected_picture == 'Currently No Image Selected':
-                self.picture = QtGui.QPixmap('GUI/no_image_selected.png')
-                self.prediction_text.append('')
-                self.prediction_text.setDisabled(True)
-            else:
-                model = Model_Version_1_04c()
-                checkpoint_path = 'trained_Models/Model_Version_1_04c_30-10-2019-H20M16/cp.ckpt'
-                model.load_weights(checkpoint_path)
-                prediction = self.makePrediction(model, self.convertPictureToNumpy(currently_selected_picture))
-
-                self.picture = QtGui.QPixmap(currently_selected_picture)
-
-                self.prediction_text.append("Probability of Negative: %s" % prediction[0, 0] +
-                                            "\n\nProbability of benign calcification: %s" % prediction[0, 1] +
-                                            "\n\nProbability of benign mass: %s" % prediction[0, 2] +
-                                            "\n\nProbability of malignant calcification: %s" % prediction[0, 3] +
-                                            "\n\nProbability of malignant mass: %s" % prediction[0, 4])
+            self.init_picture_and_predictions()
 
             self.resized_picture = self.picture.scaled(299, 299, Qt.KeepAspectRatio, Qt.FastTransformation)
             self.picture_label.setPixmap(self.resized_picture)
+            self.picture_label.setMinimumWidth(299)
+            self.picture_label.setMinimumHeight(299)
 
             # Tree and List view for file directory overview of pictures
             self.picture_directory_label = QLabel('Select a Picture:')
@@ -87,6 +71,8 @@ with tf.device('/CPU:0'):
             self.listview_picture.clicked.connect(self.on_picture_listview_clicked)
             self.treeview_picture.setColumnHidden(1, True)
             self.treeview_picture.setColumnWidth(0, 275)
+            self.treeview_picture.setMinimumWidth(500)
+            self.listview_picture.setMinimumWidth(500)
 
             # Tree and List view for file directory overview of models
             self.model_directory_label = QLabel('Select a Model:')
@@ -118,9 +104,12 @@ with tf.device('/CPU:0'):
             self.hbox_inner.addWidget(self.treeview_picture)
             self.hbox_inner.addWidget(self.listview_picture)
 
-            self.vbox_right.addWidget(self.picture_name_label)
-            self.vbox_right.addWidget(self.picture_label)
+            self.vbox_right.addWidget(self.selected_picture_label)
+            self.vbox_right.addWidget(self.picture_label, alignment=Qt.AlignHCenter)
+            self.vbox_right.addWidget(self.picture_name_label, alignment=Qt.AlignHCenter)
             self.vbox_right.addWidget(self.prediction_text)
+
+            self.vbox_right.setAlignment(Qt.AlignCenter)
 
             # p = self.palette()
             # p.setColor(self.backgroundRole(), Qt.white)
@@ -130,19 +119,50 @@ with tf.device('/CPU:0'):
             self.setSizePolicy(self.sizePolicy)
             self.show()
 
-        def on_picture_treeview_clicked(self, index):
-            path = self.dirModel_picture.fileInfo(index).absoluteFilePath()
-            self.listview_picture.setRootIndex(self.fileModel_picture.setRootPath(path))
+        def init_picture_and_predictions(self):
+            if currently_selected_picture == 'Currently No Image Selected':
+                self.picture = QtGui.QPixmap('no_image_selected.png')
+                self.prediction_text.setText('')
 
-        def is_png(data):
-            return data[:8] == '\x89PNG\x0d\x0a\x1a\x0a'
+        def on_picture_treeview_clicked(self, index):
+            pathof_selected_dir = self.dirModel_picture.fileInfo(index).absoluteFilePath()
+            self.listview_picture.setRootIndex(self.fileModel_picture.setRootPath(pathof_selected_dir))
 
         def on_picture_listview_clicked(self, index):
-            self.prediction_text.setDisabled(False)
+            global currently_selected_model
+            global currently_selected_picture
+
+            currently_selected_picture = self.fileModel_picture.fileInfo(index).absoluteFilePath()
             try:
-                global currently_selected_picture
-                currently_selected_picture = self.fileModel_picture.fileInfo(index).absoluteFilePath()
                 Image.open(currently_selected_picture)
+                self.picture_name_label.setText(currently_selected_picture)
+                self.picture_label.setPixmap(QtGui.QPixmap(currently_selected_picture))
+            except IOError:
+                print('Exception: Chosen file is not a picture')
+            if currently_selected_model is not None:
+                new_prediction = self.makePrediction(currently_selected_model,
+                                                     self.convertPictureToNumpy(currently_selected_picture))
+
+                self.prediction_text.setText("Probability of Negative: %s" % new_prediction[0, 0] +
+                                             "\n\nProbability of Benign Calcification: %s" % new_prediction[0, 1] +
+                                             "\n\nProbability of Benign Mass: %s" % new_prediction[0, 2] +
+                                             "\n\nProbability of Malignant Calcification: %s" % new_prediction[
+                                                 0, 3] +
+                                             "\n\nProbability of Malignant Mass: %s" % new_prediction[0, 4])
+            else:
+                self.prediction_text.setText('No Model is Chosen for Prediction. Choose one to the Right.')
+
+        def on_model_listview_clicked(self, index):
+            global currently_selected_model
+            global currently_selected_picture
+
+            selected_model_path = self.dirModel_model.fileInfo(index).absoluteFilePath()
+            selected_model_name = os.path.split(selected_model_path)
+            split = selected_model_name[1].split('_')
+            selected_model_version = split[0] + '_' + split[1] + '_' + split[2] + '_' + split[3]
+            currently_selected_model = self.getModel(selected_model_version, selected_model_path)
+
+            if currently_selected_picture != 'Currently No Image Selected':
                 new_prediction = self.makePrediction(currently_selected_model,
                                                      self.convertPictureToNumpy(currently_selected_picture))
                 self.picture_name_label.setText(currently_selected_picture)
@@ -150,18 +170,9 @@ with tf.device('/CPU:0'):
                 self.prediction_text.setText("Probability of Negative: %s" % new_prediction[0, 0] +
                                              "\n\nProbability of Benign Calcification: %s" % new_prediction[0, 1] +
                                              "\n\nProbability of Benign Mass: %s" % new_prediction[0, 2] +
-                                             "\n\nProbability of Malignant Calcification: %s" % new_prediction[0, 3] +
+                                             "\n\nProbability of Malignant Calcification: %s" % new_prediction[
+                                                 0, 3] +
                                              "\n\nProbability of Malignant Mass: %s" % new_prediction[0, 4])
-            except IOError:
-                print('Chosen file is not a picture')
-
-        def on_model_listview_clicked(self, index):
-            selected_model_path = self.dirModel_model.fileInfo(index).absoluteFilePath()
-            selected_model_name = os.path.split(selected_model_path)
-            split = selected_model_name[1].split('_')
-            selected_model_version = split[0] + '_' + split[1] + '_' + split[2] + '_' + split[3]
-            global currently_selected_model
-            currently_selected_model = self.getModel(selected_model_version, selected_model_path)
 
         def getModel(self, model_version, model_path):
             model = getattr(sys.modules[__name__], model_version)()
@@ -175,16 +186,19 @@ with tf.device('/CPU:0'):
             image = image / 255.0
             return input_model.predict(image)
 
+        def convertPictureToNumpy(self, filename):
+            img = Image.open(filename)
+            np_array = np.array(img, dtype='uint8')
+            return np_array
+
         def getFileName(self):
             fileName, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "",
                                                       "All Files (*);;Python Files (*.py)")
             if fileName:
                 return fileName
 
-        def convertPictureToNumpy(self, filename):
-            img = Image.open(filename)
-            np_array = np.array(img, dtype='uint8')
-            return np_array
+        def is_png(data):
+            return data[:8] == '\x89PNG\x0d\x0a\x1a\x0a'
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
