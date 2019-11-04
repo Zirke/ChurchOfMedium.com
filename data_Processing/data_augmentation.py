@@ -2,7 +2,7 @@ import tensorflow as tf
 import numpy as np
 
 
-def flip_image_90(image_arr, label_array):
+def rotate_image_90(image_arr, label_array):
     flipped_images, labels = [], []
     for image in image_arr:
         if not isinstance(image, (np.ndarray, np.generic)):
@@ -15,18 +15,52 @@ def flip_image_90(image_arr, label_array):
     return flipped_images, labels
 
 
+def flip_image(image_arr, label_array):
+    flipped_images, labels = [], []
+    for image in image_arr:
+        if not isinstance(image, (np.ndarray, np.generic)):
+            image = image.numpy().reshape(299, 299)
+        image = np.fliplr(image)
+        flipped_images.append(image)
+    for label in label_array:
+        labels.append(label)
+
+    return flipped_images, labels
+
+
+def one_rotate_image(image):
+    if not isinstance(image, (np.ndarray, np.generic)):
+        image = image.numpy().reshape(299, 299)
+        image = np.rot90(image)
+
+    return image
+
+
+def one_flip_image(image):
+    if not isinstance(image, (np.ndarray, np.generic)):
+        image = image.numpy().reshape(299, 299)
+        image = np.fliplr(image)
+
+    return image
+
+
 def produce_more_data(image_array, label_array):
-    flipped_images90, flipped90_lbls = flip_image_90(image_array, label_array)
-    flipped_images180, flipped180_lbls = flip_image_90(flipped_images90, flipped90_lbls)
-    flipped_images270, flipped270_lbls = flip_image_90(flipped_images180, flipped180_lbls)
+    rotated_images90, rotated90_lbls = rotate_image_90(image_array, label_array)
+    rotated_images180, rotated180_lbls = rotate_image_90(rotated_images90, rotated90_lbls)
+    rotated_images270, rotated270_lbls = rotate_image_90(rotated_images180, rotated180_lbls)
 
-    image_array = append_arr(image_array, flipped_images90)
-    image_array = append_arr(image_array, flipped_images180)
-    image_array = append_arr(image_array, flipped_images270)
+    image_array = append_arr(image_array, rotated_images90)
+    image_array = append_arr(image_array, rotated_images180)
+    image_array = append_arr(image_array, rotated_images270)
 
-    label_array = append_labels(label_array, flipped90_lbls)
-    label_array = append_labels(label_array, flipped180_lbls)
-    label_array = append_labels(label_array, flipped270_lbls)
+    label_array = append_labels(label_array, rotated90_lbls)
+    label_array = append_labels(label_array, rotated180_lbls)
+    label_array = append_labels(label_array, rotated270_lbls)
+
+    rot_flip_images, rot_flip_labels = flip_image(image_array, label_array)
+    image_array = append_arr(image_array, rot_flip_images)
+    label_array = append_arr(label_array, rot_flip_labels)
+
     return image_array, label_array
 
 

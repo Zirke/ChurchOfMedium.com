@@ -129,7 +129,7 @@ class Model_Version_2_01c(tf.keras.Model):
 
         self.flatten = Flatten()
 
-        self.d1 = Dense(512,  # Amount of neurons
+        self.d1 = Dense(128,  # Amount of neurons
                         activation='relu',  # Activation function
                         use_bias=True,  # bias is enabled
                         bias_initializer='zeros',  # initialisation of bias
@@ -138,7 +138,7 @@ class Model_Version_2_01c(tf.keras.Model):
                         bias_constraint=None)  #
 
         # Dense is a fully connected layer
-        self.d2 = Dense(512,  # Amount of neurons
+        self.d2 = Dense(128,  # Amount of neurons
                         activation='relu',  # Activation function
                         use_bias=True,  # bias is enabled
                         bias_initializer='zeros',  # initialisation of bias
@@ -146,8 +146,8 @@ class Model_Version_2_01c(tf.keras.Model):
                         activity_regularizer=None,  #
                         bias_constraint=None)  #
 
-        self.d3 = Dense(1,  # Amount of neurons
-                        activation='sigmoid',  # Activation function
+        self.d3 = Dense(5,  # Amount of neurons
+                        activation='softmax',  # Activation function
                         use_bias=True,  # bias is enabled
                         bias_initializer='zeros',  # initialisation of bias
                         bias_regularizer=None,  # regularize biases
@@ -159,14 +159,9 @@ class Model_Version_2_01c(tf.keras.Model):
         x = self.conv1(x)
         x = self.maxpool1(x)
         x = self.conv2(x)
-        x = self.conv3(x)
-        x = self.conv4(x)
-        x = self.con5(x)
-        x = self.conv6(x)
+        x = self.maxpool1(x)
         x = self.flatten(x)
         x = self.d1(x)
-        x = self.drop(x)
-        x = self.d2(x)
         x = self.drop(x)
         return self.d3(x)
 

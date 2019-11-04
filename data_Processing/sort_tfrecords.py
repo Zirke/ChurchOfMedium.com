@@ -160,7 +160,7 @@ def tf_serialize_example(image, label):
 def serialize_example(image, label):
     feature = {
         'image': _bytes_feature(image),
-        'label': _int64_feature(label),
+        'label': _bytes_feature(label),
     }
     example_proto = tf.train.Example(features=tf.train.Features(feature=feature))
     return example_proto.SerializeToString()

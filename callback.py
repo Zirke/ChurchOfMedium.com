@@ -6,11 +6,15 @@ import tensorflow as tf
 
 
 # Callback that stops training when it reaches a single
-class early_stopping_callback(tf.keras.callbacks.Callback):
+class manual_stopping_callback(tf.keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs={}):
         if (logs.get('accuracy') - logs.get('val_accuracy')) > 0.1:
             print("\nTraining Accuracy is too large compared to validation accuracy")
             self.model.stop_training = True
+
+
+def early_stopping_callback(metrics, patience):
+    return tf.keras.callbacks.EarlyStopping(monitor=metrics, patience=patience)
 
 
 def tensorboard_callback(log_dir, freq):

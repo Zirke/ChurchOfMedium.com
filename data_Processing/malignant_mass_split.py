@@ -30,9 +30,10 @@ def length_and_malignant_arrays(parsed_data):
     for image, label in parsed_data:
         # label 4 is the number in the original dataset
         if label.numpy() == 4:
-            label_one = tf.convert_to_tensor(1, dtype=tf.int64)  # convert to label 1 for binary classification
+            indicator_variable = tf.convert_to_tensor([0, 1],
+                                                      dtype=tf.int64)  # convert to label 1 for binary classification
             malignant_images.append(image)
-            malignant_labels.append(label_one)
+            malignant_labels.append(indicator_variable)
 
     return malignant_images, malignant_labels
 
@@ -46,13 +47,14 @@ def non_malignant_images(parsed_data, n):
         if len(non_malignant_labels) == n * 2:
             return non_malignant_image, non_malignant_labels
         elif label.numpy() == 0 and negative_count < n // 100 * 30:
+            indicator_variable = tf.convert_to_tensor([1, 0], dtype=tf.int64)
             non_malignant_image.append(image)
-            non_malignant_labels.append(label)
+            non_malignant_labels.append(indicator_variable)
             negative_count += 1
         # 4 is the label for malignant mass in the original dataset
         elif 4 != label.numpy() != 0:
-            zero_lbl = tf.convert_to_tensor(0, dtype=tf.int64)  # All other labels should be 0
+            indicator_variable = tf.convert_to_tensor([1, 0], dtype=tf.int64)  # All other labels should be 0
             non_malignant_image.append(image)
-            non_malignant_labels.append(zero_lbl)
+            non_malignant_labels.append(indicator_variable)
 
     return non_malignant_image, non_malignant_labels
