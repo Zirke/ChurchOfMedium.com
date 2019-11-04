@@ -19,6 +19,16 @@ def plot_history(history):
 
     plt.show()
 
+def plot_recall(history):
+    plt.plot(history.history['recall'], label='recall')
+    plt.plot(history.history['val_recall'], label='val_recall')
+    plt.xlabel('Epoch')
+    plt.ylabel('Recall')
+    plt.ylim([0.1, 1])
+    plt.legend(loc='lower right')
+
+    plt.show()
+
 
 def plot_multi_label_predictions(batched_testing_data, model, n):
     # Make predictions for images in testing dataset

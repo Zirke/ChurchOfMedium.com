@@ -53,7 +53,7 @@ def negative_images_arr(parsed_data, n):
     negative_count = 0
 
     for image, label in parsed_data:
-        if len(negative_labels) == (n // 100) * 3:
+        if len(negative_labels) == (n // 100) * 25:
             return negative_images, negative_labels
         elif label.numpy() == 0:
             indicator_variable = tf.convert_to_tensor([1, 0, 0, 0, 0], dtype=tf.int64)

@@ -28,5 +28,5 @@ def decode_indicator_variables(serialized_example):
 
     image = tf.reshape(image, [299, 299, 1])
     image = tf.cast(image, tf.float32)
-    image = image / 255.0
+    image /= 255.0
     return image, label

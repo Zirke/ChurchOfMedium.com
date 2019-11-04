@@ -39,20 +39,19 @@ five_diagnosis_paths = ['sorted_tfrecords/five_diagnosis_split_training.tfrecord
                         'sorted_tfrecords/five_diagnosis_split_val.tfrecord',
                         'sorted_tfrecords/five_diagnosis_split_test.tfrecord', ]
 
-with tf.device('/CPU:0'):
-    if __name__ == '__main__':
-        # binary_classification(negative_bi_file_paths, sorting_algorithms[0])
+#if __name__ == '__main__':
+    #binary_classification(negative_bi_file_paths, sorting_algorithms[0])
 
-        # Creates 3 files of BENIGN CALCIFICATION, train, val, test. Roughly ~1.4gb data.
-        binary_classification(benign_cal_split_paths, sorting_algorithms[1])
+    # Creates 3 files of BENIGN CALCIFICATION, train, val, test. Roughly ~1.4gb data.
+    #binary_classification(benign_cal_split_paths, sorting_algorithms[1])
 
-        # Creates 3 files of BENIGN MASS, train, val, test. Roughly ~1.35gb data.
-    # binary_classification(benign_mass_split_paths, sorting_algorithms[2])
+    # Creates 3 files of BENIGN MASS, train, val, test. Roughly ~1.35gb data.
+    #binary_classification(benign_mass_split_paths, sorting_algorithms[2])
 
     # Creates 3 files of MALIGNANT CALCIFICATION, train, val, test. Roughly ~1.15gb data.
-    # binary_classification(malignant_cal_split_paths, sorting_algorithms[3])
+    #binary_classification(malignant_cal_split_paths, sorting_algorithms[3])
 
     # Creates 3 files of MALIGNANT MASS, train, val, test. Roughly ~1.2gb data.
-    # binary_classification(malignant_mass_split_paths, sorting_algorithms[4])
+    #binary_classification(malignant_mass_split_paths, sorting_algorithms[4])
 
-    # binary_classification(five_diagnosis_paths, sorting_algorithms[5])
+#binary_classification(five_diagnosis_paths, sorting_algorithms[5])

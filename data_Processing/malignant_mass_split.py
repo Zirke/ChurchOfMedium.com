@@ -55,6 +55,10 @@ def non_malignant_images(parsed_data, n):
         elif 4 != label.numpy() != 0:
             indicator_variable = tf.convert_to_tensor([1, 0], dtype=tf.int64)  # All other labels should be 0
             non_malignant_image.append(image)
+            non_malignant_image.append(one_flip_image(image))
+            non_malignant_image.append(one_rotate_image(image))
+            non_malignant_labels.append(indicator_variable)
+            non_malignant_labels.append(indicator_variable)
             non_malignant_labels.append(indicator_variable)
 
     return non_malignant_image, non_malignant_labels
