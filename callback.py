@@ -13,12 +13,26 @@ class manual_stopping_callback(tf.keras.callbacks.Callback):
             self.model.stop_training = True
 
 
+"""
+class tensorboard_callback(tf.keras.callbacks.TensorBoard):
+
+    def __init__(self,
+                 log_dir):
+
+
+    def on_train_batch_end(self):
+"""
+
+
 def early_stopping_callback(metrics, patience):
     return tf.keras.callbacks.EarlyStopping(monitor=metrics, patience=patience)
 
 
 def tensorboard_callback(log_dir, freq):
-    return tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=freq)
+    return tf.keras.callbacks.TensorBoard(log_dir=log_dir,
+                                          histogram_freq=freq,
+                                          update_freq='epoch',
+                                          write_images=True)
 
 
 def checkpoint_callback(model):
@@ -32,4 +46,4 @@ def checkpoint_callback(model):
     return tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,
                                               save_weights_only=True,
                                               verbose=1,
-                                              period=5)
+                                              )
