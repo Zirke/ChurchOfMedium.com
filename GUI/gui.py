@@ -36,7 +36,6 @@ with tf.device('/CPU:0'):
             self.picture_label = QLabel()
             self.prediction_text = QTextEdit()
             self.prediction_text.setReadOnly(True)
-            self.prediction_text.setFontPointSize(9)
 
             self.init_picture_and_predictions()
 
@@ -74,9 +73,9 @@ with tf.device('/CPU:0'):
             self.treeview_picture.setMinimumWidth(500)
             self.listview_picture.setMinimumWidth(500)
 
-            # Tree and List view for file directory overview of models
-            self.model_directory_label = QLabel('Select a Model:')
-            model_path = 'trained_Models\\'
+            # List view for file directory overview of five label models
+            self.model_directory_label = QLabel('Select a Five Label Model:')
+            model_path = 'trained_five_Models\\'
             self.listview_model = QListView()
             self.dirModel_model = QFileSystemModel()
 
@@ -87,22 +86,45 @@ with tf.device('/CPU:0'):
             self.listview_model.setRootIndex(self.dirModel_model.index(model_path))
             self.listview_model.clicked.connect(self.on_model_listview_clicked)
 
+            # List view for file directory overview of binary models
+            self.model_binary_directory_label = QLabel('Select a Binary Model:')
+            model_binary_path = 'trained_binary_Models\\'
+            self.listview_model_binary = QListView()
+            self.dirModel_model_binary = QFileSystemModel()
+
+            self.dirModel_model_binary.setRootPath(model_binary_path)
+            self.dirModel_model_binary.setFilter(QDir.NoDotAndDotDot | QDir.AllDirs)
+
+            self.listview_model_binary.setModel(self.dirModel_model_binary)
+            self.listview_model_binary.setRootIndex(self.dirModel_model_binary.index(model_binary_path))
+            self.listview_model_binary.clicked.connect(self.on_model_binary_listview_clicked)
+
             # Layout handling.
             self.vbox = QVBoxLayout()
             self.vbox_left = QVBoxLayout()
             self.vbox_right = QVBoxLayout()
             self.hbox_outer = QHBoxLayout()
-            self.hbox_inner = QHBoxLayout()
+            self.hbox_top = QHBoxLayout()
+            self.hbox_buttom = QHBoxLayout()
+            self.vbox_five_label = QVBoxLayout()
+            self.vbox_binary = QVBoxLayout()
 
             self.vbox.addLayout(self.hbox_outer)
             self.hbox_outer.addLayout(self.vbox_left)
             self.hbox_outer.addLayout(self.vbox_right)
-            self.vbox_left.addWidget(self.model_directory_label)
-            self.vbox_left.addWidget(self.listview_model)
+            self.vbox_left.addLayout(self.hbox_top)
+            self.hbox_top.addLayout(self.vbox_five_label)
+            self.hbox_top.addLayout(self.vbox_binary)
+
+            self.vbox_five_label.addWidget(self.model_directory_label)
+            self.vbox_five_label.addWidget(self.listview_model)
+            self.vbox_binary.addWidget(self.model_binary_directory_label)
+            self.vbox_binary.addWidget(self.listview_model_binary)
+
             self.vbox_left.addWidget(self.picture_directory_label)
-            self.vbox_left.addLayout(self.hbox_inner)
-            self.hbox_inner.addWidget(self.treeview_picture)
-            self.hbox_inner.addWidget(self.listview_picture)
+            self.vbox_left.addLayout(self.hbox_buttom)
+            self.hbox_buttom.addWidget(self.treeview_picture)
+            self.hbox_buttom.addWidget(self.listview_picture)
 
             self.vbox_right.addWidget(self.selected_picture_label)
             self.vbox_right.addWidget(self.picture_label, alignment=Qt.AlignHCenter)
@@ -111,9 +133,6 @@ with tf.device('/CPU:0'):
 
             self.vbox_right.setAlignment(Qt.AlignCenter)
 
-            # p = self.palette()
-            # p.setColor(self.backgroundRole(), Qt.white)
-            # self.setPalette(p)
             self.setLayout(self.vbox)  # This vbox is the outer layer
             self.sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
             self.setSizePolicy(self.sizePolicy)
@@ -121,7 +140,7 @@ with tf.device('/CPU:0'):
 
         def init_picture_and_predictions(self):
             if currently_selected_picture == 'Currently No Image Selected':
-                self.picture = QtGui.QPixmap('no_image_selected.png')
+                self.picture = QtGui.QPixmap('GUI/no_image_selected.png')
                 self.prediction_text.setText('')
 
         def on_picture_treeview_clicked(self, index):
@@ -142,13 +161,7 @@ with tf.device('/CPU:0'):
             if currently_selected_model is not None:
                 new_prediction = self.makePrediction(currently_selected_model,
                                                      self.convertPictureToNumpy(currently_selected_picture))
-
-                self.prediction_text.setText("Probability of Negative: %s" % new_prediction[0, 0] +
-                                             "\n\nProbability of Benign Calcification: %s" % new_prediction[0, 1] +
-                                             "\n\nProbability of Benign Mass: %s" % new_prediction[0, 2] +
-                                             "\n\nProbability of Malignant Calcification: %s" % new_prediction[
-                                                 0, 3] +
-                                             "\n\nProbability of Malignant Mass: %s" % new_prediction[0, 4])
+                self.showPrediction(new_prediction)
             else:
                 self.prediction_text.setText('No Model is Chosen for Prediction. Choose one to the Right.')
 
@@ -167,12 +180,10 @@ with tf.device('/CPU:0'):
                                                      self.convertPictureToNumpy(currently_selected_picture))
                 self.picture_name_label.setText(currently_selected_picture)
                 self.picture_label.setPixmap(QtGui.QPixmap(currently_selected_picture))
-                self.prediction_text.setText("Probability of Negative: %s" % new_prediction[0, 0] +
-                                             "\n\nProbability of Benign Calcification: %s" % new_prediction[0, 1] +
-                                             "\n\nProbability of Benign Mass: %s" % new_prediction[0, 2] +
-                                             "\n\nProbability of Malignant Calcification: %s" % new_prediction[
-                                                 0, 3] +
-                                             "\n\nProbability of Malignant Mass: %s" % new_prediction[0, 4])
+                self.showPrediction(new_prediction)
+
+        def on_model_binary_listview_clicked(self):
+            print('Ik pild ved den')
 
         def getModel(self, model_version, model_path):
             model = getattr(sys.modules[__name__], model_version)()
@@ -185,6 +196,14 @@ with tf.device('/CPU:0'):
             image = tf.cast(image, tf.float32)
             image = image / 255.0
             return input_model.predict(image)
+
+        def showPrediction(self, prediction):
+            self.prediction_text.setText("Probability of Negative: %s" % prediction[0, 0] +
+                                         "\n\nProbability of Benign Calcification: %s" % prediction[0, 1] +
+                                         "\n\nProbability of Benign Mass: %s" % prediction[0, 2] +
+                                         "\n\nProbability of Malignant Calcification: %s" % prediction[
+                                             0, 3] +
+                                         "\n\nProbability of Malignant Mass: %s" % prediction[0, 4])
 
         def convertPictureToNumpy(self, filename):
             img = Image.open(filename)
