@@ -12,6 +12,7 @@ import shutil
 import webbrowser
 
 import keras_metrics
+
 """
 Get datasets for training, validation, and testing
 process_data(file_path) gives a binary classification dataset, list of all file paths in sorting_hub
@@ -20,7 +21,6 @@ process_dataset() gives dataset for 5 classes dataset
 from data_Processing.binary_pre_processing import *
 """
 parsed_training_data, parsed_val_data, parsed_testing_data = process_data(malignant_cal_split_paths)
-
 
 FILE_SIZE = len(list(parsed_training_data))  # Training dataset size
 TEST_SIZE = len(list(parsed_val_data))  # Validation and test dataset size
@@ -43,7 +43,7 @@ es_callback = early_stopping_callback('val_loss', 5)
 ms_callback = manual_stopping_callback()
 tb_callback = tensorboard_callback("logs", 1)
 model_string = str(model).split(".")
-cp_callback = checkpoint_callback(str(model_string[len(model_string) - 2]), 'binary' , 'mc')
+cp_callback = checkpoint_callback(str(model_string[len(model_string) - 2]), 'binary', 'mc')
 
 if __name__ == '__main__':
     sub = model
@@ -75,6 +75,7 @@ plot_history(history)
 # Open Tensorboard
 webbrowser.open('http://localhost:6006/')
 os.system('tensorboard --logdir logs/')
+
 
 def shuffle(parsed_training_data, parsed_val_data):
     parsed_training_data = parsed_training_data.shuffle(buffer_size=FILE_SIZE,
