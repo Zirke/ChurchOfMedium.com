@@ -12,13 +12,14 @@ def plot_history(history):
 
     plt.plot(history.history['accuracy'], label='accuracy')
     plt.plot(history.history['val_accuracy'], label='val_accuracy')
+    plt.plot(history.history['val_precision'], label='val_precision')
+    plt.plot(history.history['val_recall'], label='val_recall')
     plt.xlabel('Epoch')
-    plt.ylabel('Accuracy')
-    plt.ylim([0.1, 1])
+    plt.ylabel('Metrics')
+    plt.ylim([0.01, 1])
     plt.legend(loc='lower right')
 
     plt.show()
-
 
 def plot_multi_label_predictions(batched_testing_data, model, n):
     # Make predictions for images in testing dataset
