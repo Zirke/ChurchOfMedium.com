@@ -10,11 +10,13 @@ binary_names = ['Negative', 'Positive']
 def plot_history(history):
     print('\nhistory dict:', history.history)
 
-    plt.plot(history.history['accuracy'], label='accuracy')
-    plt.plot(history.history['val_accuracy'], label='val_accuracy')
+    plt.plot(history.history['categorical_accuracy'], label='accuracy')
+    plt.plot(history.history['val_categorical_accuracy'], label='val_accuracy')
+    plt.plot(history.history['val_precision'], label='val_precision')
+    plt.plot(history.history['val_recall'], label='val_recall')
     plt.xlabel('Epoch')
-    plt.ylabel('Accuracy')
-    plt.ylim([0.1, 1])
+    plt.ylabel('Metrics')
+    plt.ylim([0.01, 1])
     plt.legend(loc='lower right')
 
     plt.show()

@@ -15,12 +15,7 @@ class manual_stopping_callback(tf.keras.callbacks.Callback):
 
 """
 class tensorboard_callback(tf.keras.callbacks.TensorBoard):
-
-    def __init__(self,
-                 log_dir):
-
-
-    def on_train_batch_end(self):
+    def on_train_batch_end(self, batch, logs=None):
 """
 
 
@@ -35,15 +30,27 @@ def tensorboard_callback(log_dir, freq):
                                           write_images=True)
 
 
-def checkpoint_callback(model):
-    i = datetime.datetime.now().strftime("%d-%m-%Y-H%HM%M")
-    if os.path.exists("trained_Models/%s_%s" % (model, i)):
-        print("Model with datetime" + i + " already exists")
-        sys.exit()
-    else:
-        checkpoint_path = "trained_Models/" + model + "_" + i + "/cp.ckpt"
+def checkpoint_callback(model, category, diagnosis):
+    if category == 'five':
+        i = datetime.datetime.now().strftime("%d-%m-%Y-H%HM%M")
+        if os.path.exists("trained_five_Models/%s_%s" % (model, i)):
+            print("Model with datetime" + i + " already exists")
+            sys.exit()
+        else:
+            checkpoint_path = "trained_five_Models/" + model + "_" + i + "/cp.ckpt"
+        return tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,
+                                                  save_weights_only=True,
+                                                  verbose=1,
+                                                  )
 
-    return tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,
-                                              save_weights_only=True,
-                                              verbose=1,
-                                              )
+    elif category == 'binary':
+        i = datetime.datetime.now().strftime("%d-%m-%Y-H%HM%M")
+        if os.path.exists("trained_binary_Models/%s_%s" % (model, i)):
+            print("Model with datetime" + i + " already exists")
+            sys.exit()
+        else:
+            checkpoint_path = "trained_binary_Models/" + model + "_" + diagnosis + "_" + i + "/cp.ckpt"
+        return tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,
+                                                  save_weights_only=True,
+                                                  verbose=1,
+                                                  )
