@@ -22,7 +22,7 @@ parsed_training_data, parsed_val_data, parsed_testing_data = process_data(five_d
 FILE_SIZE = len(list(parsed_training_data))  # Training dataset size
 TEST_SIZE = len(list(parsed_val_data))  # Validation and test dataset size
 BATCH_SIZE = 2
-EPOCHS = 10
+EPOCHS = 1
 
 # batching the dataset into 32-size mini-batches
 batched_training_data = parsed_training_data.batch(BATCH_SIZE).repeat(EPOCHS)  # BATCH_SIZE
@@ -46,8 +46,8 @@ if __name__ == '__main__':
     sub = model
     sub.model().summary()
 
-model.compile(optimizer='sgd',
-              loss='categorical_crossentropy',
+model.compile(optimizer=tf.keras.optimizers.SGD(),
+              loss=tf.keras.losses.CategoricalCrossentropy(),
               metrics=[tf.metrics.CategoricalAccuracy(), keras_metrics.precision(), keras_metrics.recall()])
 
 history = model.fit(
