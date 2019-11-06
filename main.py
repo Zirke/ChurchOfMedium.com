@@ -1,3 +1,5 @@
+from models.Model_Version_1_06c import Model_Version_1_06c
+from models.Model_Version_2_05c import Model_Version_2_05c
 from sorting_hub import *
 from callback import *
 from data_Processing.post_processing import *
@@ -17,7 +19,8 @@ process_dataset() gives dataset for 5 classes dataset
 
 from data_Processing.binary_pre_processing import *
 """
-parsed_training_data, parsed_val_data, parsed_testing_data = process_data(five_diagnosis_paths)
+parsed_training_data, parsed_val_data, parsed_testing_data = process_data(malignant_cal_split_paths)
+
 
 FILE_SIZE = len(list(parsed_training_data))  # Training dataset size
 TEST_SIZE = len(list(parsed_val_data))  # Validation and test dataset size
@@ -28,19 +31,19 @@ EPOCHS = 1
 batched_training_data = parsed_training_data.batch(BATCH_SIZE).repeat(EPOCHS)  # BATCH_SIZE
 batched_val_data = parsed_val_data.batch(BATCH_SIZE).repeat(EPOCHS)  # BATCH_SIZE
 batched_testing_data = parsed_testing_data.batch(BATCH_SIZE)  # BATCH_SIZE
-
+print("here")
 # Clear Tensorboard
 if os.path.isdir('logs'):
     shutil.rmtree('logs')
 
-model = Model_Version_1_06c()
+model = Model_Version_2_05c()
 
 # initializing the callback
 es_callback = early_stopping_callback('val_loss', 5)
 ms_callback = manual_stopping_callback()
 tb_callback = tensorboard_callback("logs", 1)
 model_string = str(model).split(".")
-cp_callback = checkpoint_callback(str(model_string[len(model_string) - 2]), 'binary', 'mc')
+cp_callback = checkpoint_callback(str(model_string[len(model_string) - 2]), 'binary' , 'mc')
 
 if __name__ == '__main__':
     sub = model

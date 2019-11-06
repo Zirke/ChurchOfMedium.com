@@ -1,4 +1,5 @@
 from data_Processing.pre_processing import *
+from pathlib import Path
 
 """
 This file extracts information in files with binary classification.
@@ -14,9 +15,21 @@ features_description = {
 
 
 def process_data(file_paths):
-    extracted_train_data = tf.data.TFRecordDataset(file_paths[0])
-    extracted_val_data = tf.data.TFRecordDataset(file_paths[1])
-    extracted_test_data = tf.data.TFRecordDataset(file_paths[2])
+    str_split = file_paths[0].split('/')
+    file_path = str_split[0] + '/' + str_split[1] + '/'
+    entries = Path(file_path)
+    file_names, val_path, test_path = [], None, None
+    for entry in entries.iterdir():
+        if 'val' in entry.name:
+            val_path = file_path + entry.name
+        elif 'test' in entry.name:
+            test_path = file_path + entry.name
+        else:
+            file_names.append(file_path + entry.name)
+
+    extracted_train_data = tf.data.TFRecordDataset(file_names)
+    extracted_val_data = tf.data.TFRecordDataset(val_path)
+    extracted_test_data = tf.data.TFRecordDataset(test_path)
     return extracted_train_data.map(decode_indicator_variables), extracted_val_data.map(
         decode_indicator_variables), extracted_test_data.map(decode_indicator_variables)
 

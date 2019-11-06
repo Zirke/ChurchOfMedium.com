@@ -18,6 +18,8 @@ The validation and test files each consists of 5% of the training dataset
 These methods are called from within the sorting_hub mostly. 
 """
 
+SPLIT_SIZE = 15000
+
 feature_description = {
     'label': tf.io.FixedLenFeature([], tf.int64, default_value=0),
     'label_normal': tf.io.FixedLenFeature([], tf.int64, default_value=0),
@@ -83,49 +85,59 @@ def binary_classification(file_paths, sorting_algorithm):
         parsed_data = dataset.map(decode_low_wide)
         image_array, label_array = append_arrays(parsed_data)
 
-    amount_of_imgs = len(image_array)
-    validation_images, validation_labels, image_array, label_array = five_percent_to_arrays(image_array, label_array,
-                                                                                            amount_of_imgs)
-    testing_images, testing_labels, image_array, label_array = five_percent_to_arrays(image_array, label_array,
-                                                                                      amount_of_imgs)
-    # Manual shuffle
-    testing_images, testing_labels = shuffle(testing_images, testing_labels, len(testing_images))
-    validation_images, validation_labels = shuffle(validation_images, validation_labels, len(validation_images))
-    image_array, label_array = shuffle(image_array, label_array, len(image_array))
-
     with tf.device('/CPU:0'):
-        training_dataset = tf.data.Dataset.from_tensor_slices((conv_to_tensor(image_array), label_array))
-        validation_dataset = tf.data.Dataset.from_tensor_slices((conv_to_tensor(validation_images), validation_labels))
-        testing_dataset = tf.data.Dataset.from_tensor_slices((conv_to_tensor(testing_images), testing_labels))
+        amount_of_imgs = len(image_array)
+        validation_images, validation_labels, image_array, label_array = five_percent_to_arrays(image_array,
+                                                                                                label_array,
+                                                                                                amount_of_imgs)
+        validation_images, validation_labels = shuffle(validation_images, validation_labels, len(validation_images))
+        write_to_tf(file_paths, validation_images, validation_labels, 'validation')
 
-        serialized_tr_dataset = training_dataset.map(tf_serialize_example)
-        serialized_val_dataset = validation_dataset.map(tf_serialize_example)
-        serialized_test_dataset = testing_dataset.map(tf_serialize_example)
+        testing_images, testing_labels, image_array, label_array = five_percent_to_arrays(image_array, label_array,
+                                                                                          amount_of_imgs)
 
-        def generator():
-            for features in training_dataset:
-                yield serialize_example(*features)
+        testing_images, testing_labels = shuffle(testing_images, testing_labels, len(testing_images))
+        write_to_tf(file_paths, testing_images, testing_labels, 'test')
 
-        def generator_val():
-            for features in validation_dataset:
-                yield serialize_example(*features)
+        image_array, label_array = shuffle(image_array, label_array, len(image_array))
 
-        def generator_test():
-            for features in testing_dataset:
-                yield serialize_example(*features)
+        write_to_tf(file_paths, image_array, label_array, 'training')
 
-        serialized_tr_dataset = tf.data.Dataset.from_generator(generator, output_types=tf.string, output_shapes=())
-        serialized_val_dataset = tf.data.Dataset.from_generator(generator_val, output_types=tf.string, output_shapes=())
-        serialized_test_dataset = tf.data.Dataset.from_generator(generator_test, output_types=tf.string,
-                                                                 output_shapes=())
 
-        writer_tr = tf.data.experimental.TFRecordWriter(file_paths[0])
-        writer_val = tf.data.experimental.TFRecordWriter(file_paths[1])
-        writer_test = tf.data.experimental.TFRecordWriter(file_paths[2])
+# write dataset into tfrecord
+def write_to_tf(file_paths, image_array, label_array, write_type):
+    image = list(chunks_of_array(image_array, SPLIT_SIZE))
+    label = list(chunks_of_array(label_array, SPLIT_SIZE))
 
-        writer_tr.write(serialized_tr_dataset)
-        writer_val.write(serialized_val_dataset)
-        writer_test.write(serialized_test_dataset)
+    filenr = 0
+    with tf.device('/CPU:0'):
+        for x in image:
+            dataset = tf.data.Dataset.from_tensor_slices((conv_to_tensor(x), label[filenr]))
+            serialized_tr_dataset = dataset.map(tf_serialize_example)
+
+            def generator():
+                for features in dataset:
+                    yield serialize_example(*features)
+
+            serialized_tr_dataset = tf.data.Dataset.from_generator(generator, output_types=tf.string, output_shapes=())
+
+            if write_type == 'training':
+                write_file_path = file_paths[0] + str(filenr) + '.tfrecord'
+                writer_tr = tf.data.experimental.TFRecordWriter(write_file_path)
+                writer_tr.write(serialized_tr_dataset)
+                filenr += 1
+            elif write_type == 'validation':
+                writer_tr = tf.data.experimental.TFRecordWriter(file_paths[1])
+                writer_tr.write(serialized_tr_dataset)
+            elif write_type == 'test':
+                writer_tr = tf.data.experimental.TFRecordWriter(file_paths[2])
+                writer_tr.write(serialized_tr_dataset)
+
+
+# divides array into n chunk arrays
+def chunks_of_array(array, n):
+    for i in range(0, len(array), n):
+        yield array[i:i + n]
 
 
 # Creates an array of images and labels consisting of 5% of the training data. Used for val and test tfrecords.
