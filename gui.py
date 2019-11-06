@@ -6,7 +6,7 @@ from PyQt5 import QtGui, QtCore
 from PyQt5.Qt import Qt
 from PyQt5.QtCore import QDir
 from PyQt5.QtWidgets import QApplication, QWidget, QFileDialog, QLabel, QVBoxLayout, QHBoxLayout, \
-    QFileSystemModel, QTreeView, QTextEdit, QListView, QSizePolicy
+    QFileSystemModel, QTreeView, QTextEdit, QListView, QSizePolicy, QGridLayout
 
 from models import *
 
@@ -14,6 +14,7 @@ from models import *
 PyQt5.QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
 
 currently_selected_model = None
+currently_selected_model_name = None
 currently_selected_picture = 'Currently No Image Selected'
 
 with tf.device('/CPU:0'):
@@ -22,8 +23,8 @@ with tf.device('/CPU:0'):
             super().__init__()
             self.left = 100
             self.top = 100
-            self.width = 1500
-            self.height = 800
+            self.width = 1100
+            self.height = 683
             self.setWindowTitle('Mammogram Prediction')
             self.setGeometry(self.left, self.top, self.width, self.height)
 
@@ -32,7 +33,6 @@ with tf.device('/CPU:0'):
         def initUI(self):
             # Widget for showing picture. The QLabel gets a Pixmap added to it to show picture
             self.picture_name_label = QLabel(currently_selected_picture)
-            self.selected_picture_label = QLabel('Currently Selected Picture:')
             self.picture_label = QLabel()
             self.prediction_text = QTextEdit()
             self.prediction_text.setReadOnly(True)
@@ -43,6 +43,7 @@ with tf.device('/CPU:0'):
             self.picture_label.setPixmap(self.resized_picture)
             self.picture_label.setMinimumWidth(299)
             self.picture_label.setMinimumHeight(299)
+            self.picture_label.setContentsMargins(0, 19, 0, 0)
 
             # Tree and List view for file directory overview of pictures
             self.picture_directory_label = QLabel('Select a Picture:')
@@ -100,6 +101,22 @@ with tf.device('/CPU:0'):
             self.listview_model_binary.clicked.connect(self.on_model_binary_listview_clicked)
 
             # Layout handling.
+
+            # self.gridlayout = QGridLayout()
+            # self.gridlayout.addWidget(self.model_directory_label, 0, 0)
+            # self.gridlayout.setColumnStretch(-15, -11)
+            # self.gridlayout.addWidget(self.listview_model, 1, 0)
+            # self.gridlayout.addWidget(self.picture_directory_label, 2, 0)
+            # self.gridlayout.addWidget(self.treeview_picture, 3, 0)
+            #
+            # self.gridlayout.addWidget(self.model_binary_directory_label, 0, 1)
+            # self.gridlayout.addWidget(self.listview_model_binary, 1, 1)
+            # self.gridlayout.addWidget(self.listview_picture, 3, 1)
+            #
+            # self.gridlayout.addWidget(self.picture_label, 0, 2)
+            # self.gridlayout.addWidget(self.picture_name_label, 1, 2)
+            # self.gridlayout.addWidget(self.prediction_text, 3, 2)
+
             self.vbox = QVBoxLayout()
             self.vbox_left = QVBoxLayout()
             self.vbox_right = QVBoxLayout()
@@ -126,14 +143,13 @@ with tf.device('/CPU:0'):
             self.hbox_buttom.addWidget(self.treeview_picture)
             self.hbox_buttom.addWidget(self.listview_picture)
 
-            self.vbox_right.addWidget(self.selected_picture_label)
             self.vbox_right.addWidget(self.picture_label, alignment=Qt.AlignHCenter)
             self.vbox_right.addWidget(self.picture_name_label, alignment=Qt.AlignHCenter)
             self.vbox_right.addWidget(self.prediction_text)
 
             self.vbox_right.setAlignment(Qt.AlignCenter)
 
-            self.setLayout(self.vbox)  # This vbox is the outer layer
+            self.setLayout(self.vbox)
             self.sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
             self.setSizePolicy(self.sizePolicy)
             self.show()
@@ -149,6 +165,7 @@ with tf.device('/CPU:0'):
 
         def on_picture_listview_clicked(self, index):
             global currently_selected_model
+            global currently_selected_model_name
             global currently_selected_picture
 
             currently_selected_picture = self.fileModel_picture.fileInfo(index).absoluteFilePath()
@@ -161,16 +178,22 @@ with tf.device('/CPU:0'):
             if currently_selected_model is not None:
                 new_prediction = self.makePrediction(currently_selected_model,
                                                      self.convertPictureToNumpy(currently_selected_picture))
-                self.showPrediction(new_prediction)
+                split = currently_selected_model_name.split('_')
+                if split[4] in ('neg', 'bc', 'bm', 'mc', 'mm'):
+                    self.show_binary_prediction(new_prediction, split[4])
+                else:
+                    self.show_five_prediction(new_prediction)
             else:
-                self.prediction_text.setText('No Model is Chosen for Prediction. Choose one to the Right.')
+                self.prediction_text.setText('No Model is Chosen for Prediction. Choose one to the left.')
 
         def on_model_listview_clicked(self, index):
             global currently_selected_model
+            global currently_selected_model_name
             global currently_selected_picture
 
             selected_model_path = self.dirModel_model.fileInfo(index).absoluteFilePath()
             selected_model_name = os.path.split(selected_model_path)
+            currently_selected_model_name = selected_model_name[1]
             split = selected_model_name[1].split('_')
             selected_model_version = split[0] + '_' + split[1] + '_' + split[2] + '_' + split[3]
             currently_selected_model = self.getModel(selected_model_version, selected_model_path)
@@ -180,10 +203,27 @@ with tf.device('/CPU:0'):
                                                      self.convertPictureToNumpy(currently_selected_picture))
                 self.picture_name_label.setText(currently_selected_picture)
                 self.picture_label.setPixmap(QtGui.QPixmap(currently_selected_picture))
-                self.showPrediction(new_prediction)
+                self.show_five_prediction(new_prediction)
 
-        def on_model_binary_listview_clicked(self):
-            print('Ik pild ved den')
+        def on_model_binary_listview_clicked(self, index):
+            global currently_selected_model
+            global currently_selected_model_name
+            global currently_selected_picture
+
+            selected_model_path = self.dirModel_model_binary.fileInfo(index).absoluteFilePath()
+            selected_model_name = os.path.split(selected_model_path)
+            currently_selected_model_name = selected_model_name[1]
+            split = selected_model_name[1].split('_')
+            selected_model_category = split[4]
+            selected_model_version = split[0] + '_' + split[1] + '_' + split[2] + '_' + split[3]
+            currently_selected_model = self.getModel(selected_model_version, selected_model_path)
+
+            if currently_selected_picture != 'Currently No Image Selected':
+                new_prediction = self.makePrediction(currently_selected_model,
+                                                     self.convertPictureToNumpy(currently_selected_picture))
+                self.picture_name_label.setText(currently_selected_picture)
+                self.picture_label.setPixmap(QtGui.QPixmap(currently_selected_picture))
+                self.show_binary_prediction(new_prediction, selected_model_category)
 
         def getModel(self, model_version, model_path):
             model = getattr(sys.modules[__name__], model_version)()
@@ -197,13 +237,25 @@ with tf.device('/CPU:0'):
             image = image / 255.0
             return input_model.predict(image)
 
-        def showPrediction(self, prediction):
+        def show_five_prediction(self, prediction):
             self.prediction_text.setText("Probability of Negative: %s" % prediction[0, 0] +
                                          "\n\nProbability of Benign Calcification: %s" % prediction[0, 1] +
                                          "\n\nProbability of Benign Mass: %s" % prediction[0, 2] +
                                          "\n\nProbability of Malignant Calcification: %s" % prediction[
                                              0, 3] +
                                          "\n\nProbability of Malignant Mass: %s" % prediction[0, 4])
+
+        def show_binary_prediction(self, prediction, category):
+            if category == 'neg':
+                self.prediction_text.setText("Probability of Negative: %s" % prediction[0, 0])
+            elif category == 'bc':
+                self.prediction_text.setText("Probability of Benign Calcification: %s" % prediction[0, 0])
+            elif category == 'bm':
+                self.prediction_text.setText("Probability of Benign Mass: %s" % prediction[0, 0])
+            elif category == 'mc':
+                self.prediction_text.setText("Probability of Malignant Calcification: %s" % prediction[0, 0])
+            elif category == 'mm':
+                self.prediction_text.setText("Probability of Malignant Mass: %s" % prediction[0, 0])
 
         def convertPictureToNumpy(self, filename):
             img = Image.open(filename)

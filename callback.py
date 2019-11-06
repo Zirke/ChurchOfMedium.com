@@ -6,19 +6,32 @@ import tensorflow as tf
 
 
 # Callback that stops training when it reaches a single
-class early_stopping_callback(tf.keras.callbacks.Callback):
+class manual_stopping_callback(tf.keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs={}):
         if (logs.get('accuracy') - logs.get('val_accuracy')) > 0.1:
             print("\nTraining Accuracy is too large compared to validation accuracy")
             self.model.stop_training = True
 
 
+"""
+class tensorboard_callback(tf.keras.callbacks.TensorBoard):
+    def on_train_batch_end(self, batch, logs=None):
+"""
+
+
+def early_stopping_callback(metrics, patience):
+    return tf.keras.callbacks.EarlyStopping(monitor=metrics, patience=patience)
+
+
 def tensorboard_callback(log_dir, freq):
-    return tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=freq)
+    return tf.keras.callbacks.TensorBoard(log_dir=log_dir,
+                                          histogram_freq=freq,
+                                          update_freq='epoch',
+                                          write_images=True)
 
 
-def checkpoint_callback(model, type):
-    if type == 'five':
+def checkpoint_callback(model, category, diagnosis):
+    if category == 'five':
         i = datetime.datetime.now().strftime("%d-%m-%Y-H%HM%M")
         if os.path.exists("trained_five_Models/%s_%s" % (model, i)):
             print("Model with datetime" + i + " already exists")
@@ -26,34 +39,18 @@ def checkpoint_callback(model, type):
         else:
             checkpoint_path = "trained_five_Models/" + model + "_" + i + "/cp.ckpt"
         return tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,
+                                                  save_weights_only=True,
+                                                  verbose=1,
+                                                  )
 
-    return tf.keras.callbacks.TensorBoard(log_dir=log_dir,
-                                          histogram_freq=freq,
-                                          update_freq='epoch',
-                                          write_images=True)
-
-
-def checkpoint_callback(model, type, *diagnosis):
-    i = datetime.datetime.now().strftime("%d-%m-%Y-H%HM%M")
-    if os.path.exists("trained_Models/%s_%s" % (model, i)):
-        print("Model with datetime" + i + " already exists")
-        sys.exit()
-    else:
-        checkpoint_path = "trained_Models/" + model + "_" + i + "/cp.ckpt"
-
-    return tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,
-
-                                              save_weights_only=True,
-                                              verbose=1,
-                                              period=5)
-    elif type == 'type':
-    i = datetime.datetime.now().strftime("%d-%m-%Y-H%HM%M")
-    if os.path.exists("trained_binary_Models/%s_%s" % (model, i)):
-        print("Model with datetime" + i + " already exists")
-        sys.exit()
-    else:
-        checkpoint_path = "trained_binary_Models/" + model + "_" + i + "/cp.ckpt"
-    return tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,
-                                              save_weights_only=True,
-                                              verbose=1,
-                                              period=5)
+    elif category == 'binary':
+        i = datetime.datetime.now().strftime("%d-%m-%Y-H%HM%M")
+        if os.path.exists("trained_binary_Models/%s_%s" % (model, i)):
+            print("Model with datetime" + i + " already exists")
+            sys.exit()
+        else:
+            checkpoint_path = "trained_binary_Models/" + model + "_" + diagnosis + "_" + i + "/cp.ckpt"
+        return tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,
+                                                  save_weights_only=True,
+                                                  verbose=1,
+                                                  )
