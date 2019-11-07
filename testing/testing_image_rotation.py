@@ -11,6 +11,7 @@ class DataAugmentationTest(unittest.TestCase):
         test_labels = np.random.randint(4, size=1)
 
         rotated90_matrix, test_labels = rotate_image_90(input_array, test_labels)
+        # Tests if the top left pixel is equal to the 90 rotated image's bottom left pixel
         self.assertEqual(input_array[0][0][0], rotated90_matrix[0][298][0])
 
         return rotated90_matrix, input_array, test_labels,
@@ -18,7 +19,7 @@ class DataAugmentationTest(unittest.TestCase):
     def test_rotation180(self):
         rotated90_matrix, input_array, test_labels = self.test_rotation90()
         rotated180_matrix, test_labels = rotate_image_90(rotated90_matrix, test_labels)
-
+        # Tests if the top left pixel is equal to the 180 rotated image's bottom right pixel
         self.assertEqual(input_array[0][0][0], rotated180_matrix[0][298][298])
 
         return rotated180_matrix, input_array, test_labels
@@ -26,7 +27,7 @@ class DataAugmentationTest(unittest.TestCase):
     def test_rotation270(self):
         rotated180_matrix, input_array, test_labels = self.test_rotation180()
         rotated270_matrix, test_labels = rotate_image_90(rotated180_matrix, test_labels)
-
+        # Tests if the top left pixel is equal to the 270 rotated image's top right pixel
         self.assertEqual(input_array[0][0][0], rotated270_matrix[0][0][298])
 
     if __name__ == '__main__':

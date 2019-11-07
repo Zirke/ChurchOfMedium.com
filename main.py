@@ -1,3 +1,5 @@
+from models.Model_Version_1_06c import Model_Version_1_06c
+from models.Model_Version_2_05c import Model_Version_2_05c
 from sorting_hub import *
 from callback import *
 from data_Processing.post_processing import *
@@ -10,6 +12,7 @@ import shutil
 import webbrowser
 
 import keras_metrics
+
 """
 Get datasets for training, validation, and testing
 process_data(file_path) gives a binary classification dataset, list of all file paths in sorting_hub
@@ -17,22 +20,23 @@ process_dataset() gives dataset for 5 classes dataset
 
 from data_Processing.binary_pre_processing import *
 """
-parsed_training_data, parsed_val_data, parsed_testing_data = process_data(five_diagnosis_paths)
+parsed_training_data, parsed_val_data, parsed_testing_data = process_data(malignant_cal_split_paths)
 
 FILE_SIZE = len(list(parsed_training_data))  # Training dataset size
 TEST_SIZE = len(list(parsed_val_data))  # Validation and test dataset size
 BATCH_SIZE = 2
-EPOCHS = 50
+EPOCHS = 1
+
 # batching the dataset into 32-size mini-batches
 batched_training_data = parsed_training_data.batch(BATCH_SIZE).repeat(EPOCHS)  # BATCH_SIZE
 batched_val_data = parsed_val_data.batch(BATCH_SIZE).repeat(EPOCHS)  # BATCH_SIZE
 batched_testing_data = parsed_testing_data.batch(BATCH_SIZE)  # BATCH_SIZE
-
+print("here")
 # Clear Tensorboard
 if os.path.isdir('logs'):
     shutil.rmtree('logs')
 
-model = Model_Version_1_06c()
+model = Model_Version_2_05c()
 
 # initializing the callback
 es_callback = early_stopping_callback('val_loss', 5)
@@ -71,6 +75,7 @@ plot_history(history)
 # Open Tensorboard
 webbrowser.open('http://localhost:6006/')
 os.system('tensorboard --logdir logs/')
+
 
 def shuffle(parsed_training_data, parsed_val_data):
     parsed_training_data = parsed_training_data.shuffle(buffer_size=FILE_SIZE,
