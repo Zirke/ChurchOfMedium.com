@@ -1,3 +1,4 @@
+import os
 import tensorflow as tf
 import PyQt5
 import numpy as np
@@ -9,6 +10,8 @@ from PyQt5.QtWidgets import QApplication, QWidget, QFileDialog, QLabel, QVBoxLay
     QFileSystemModel, QTreeView, QTextEdit, QListView, QSizePolicy, QGridLayout
 
 from models import *
+
+os.chdir('../')
 
 # Makes the application scale correct on all resolutions
 PyQt5.QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
