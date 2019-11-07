@@ -22,8 +22,7 @@ parsed_training_data, parsed_val_data, parsed_testing_data = process_data(five_d
 FILE_SIZE = len(list(parsed_training_data))  # Training dataset size
 TEST_SIZE = len(list(parsed_val_data))  # Validation and test dataset size
 BATCH_SIZE = 2
-EPOCHS = 1
-
+EPOCHS = 50
 # batching the dataset into 32-size mini-batches
 batched_training_data = parsed_training_data.batch(BATCH_SIZE).repeat(EPOCHS)  # BATCH_SIZE
 batched_val_data = parsed_val_data.batch(BATCH_SIZE).repeat(EPOCHS)  # BATCH_SIZE
