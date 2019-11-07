@@ -1,4 +1,3 @@
-import os
 import tensorflow as tf
 import PyQt5
 import numpy as np
