@@ -180,6 +180,7 @@ with tf.device('/CPU:0'):
                 self.picture_label.setPixmap(QtGui.QPixmap(currently_selected_picture))
             except IOError:
                 print('Exception: Chosen file is not a picture')
+            # Checks if the selected picture has size 299
             image_in = cv2.imread(currently_selected_picture)
             size = image_in.shape[:2]
             if size[0] == 299:
@@ -193,9 +194,11 @@ with tf.device('/CPU:0'):
                         self.show_five_prediction(new_prediction)
                 else:
                     self.prediction_text.setText('No Model is Chosen for Prediction. Choose one to the left.')
+            # If the selected picture is not size 299 it will be padded and cropped
             else:
-                resize_image_padding(currently_selected_picture)
-                
+                cropped_images = resize_image_padding(currently_selected_picture)
+                self.listview_picture.setRootIndex(
+                    self.fileModel_picture.setRootPath('pictures/cropped/%s' % cropped_images))
 
         def on_model_listview_clicked(self, index):
             global currently_selected_model
