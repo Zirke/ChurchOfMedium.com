@@ -1,6 +1,7 @@
 import tensorflow as tf
 import PyQt5
 import numpy as np
+import cv2
 from PIL import Image
 from PyQt5 import QtGui, QtCore
 from PyQt5.Qt import Qt
@@ -9,6 +10,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QFileDialog, QLabel, QVBoxLay
     QFileSystemModel, QTreeView, QTextEdit, QListView, QSizePolicy, QGridLayout
 
 from models import *
+from data_Processing.image_cropping import *
 
 os.chdir('../')
 
@@ -171,22 +173,29 @@ with tf.device('/CPU:0'):
             global currently_selected_picture
 
             currently_selected_picture = self.fileModel_picture.fileInfo(index).absoluteFilePath()
+
             try:
                 Image.open(currently_selected_picture)
                 self.picture_name_label.setText(currently_selected_picture)
                 self.picture_label.setPixmap(QtGui.QPixmap(currently_selected_picture))
             except IOError:
                 print('Exception: Chosen file is not a picture')
-            if currently_selected_model is not None:
-                new_prediction = self.makePrediction(currently_selected_model,
-                                                     self.convertPictureToNumpy(currently_selected_picture))
-                split = currently_selected_model_name.split('_')
-                if split[4] in ('neg', 'bc', 'bm', 'mc', 'mm'):
-                    self.show_binary_prediction(new_prediction, split[4])
+            image_in = cv2.imread(currently_selected_picture)
+            size = image_in.shape[:2]
+            if size[0] == 299:
+                if currently_selected_model is not None:
+                    new_prediction = self.makePrediction(currently_selected_model,
+                                                         self.convertPictureToNumpy(currently_selected_picture))
+                    split = currently_selected_model_name.split('_')
+                    if split[4] in ('neg', 'bc', 'bm', 'mc', 'mm'):
+                        self.show_binary_prediction(new_prediction, split[4])
+                    else:
+                        self.show_five_prediction(new_prediction)
                 else:
-                    self.show_five_prediction(new_prediction)
+                    self.prediction_text.setText('No Model is Chosen for Prediction. Choose one to the left.')
             else:
-                self.prediction_text.setText('No Model is Chosen for Prediction. Choose one to the left.')
+                resize_image_padding(currently_selected_picture)
+                
 
         def on_model_listview_clicked(self, index):
             global currently_selected_model
