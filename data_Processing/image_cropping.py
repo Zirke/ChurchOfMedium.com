@@ -32,5 +32,5 @@ def crop_image(input_image, image_name):
     make_dirs('pictures/cropped/%s' % image_name)
     for r in range(0, input_image.shape[0], 299):
         for c in range(0, input_image.shape[1], 299):
-            cv2.imwrite('pictures/cropped/' + image_name + '/' + f"img{r}_{c}.png",
+            cv2.imwrite('pictures/cropped/' + image_name + '/' + f"%s_{r}_{c}.png" % image_name,
                         input_image[r:r + 299, c:c + 299, :])

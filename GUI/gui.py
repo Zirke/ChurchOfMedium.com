@@ -7,7 +7,7 @@ from PyQt5 import QtGui, QtCore
 from PyQt5.Qt import Qt
 from PyQt5.QtCore import QDir
 from PyQt5.QtWidgets import QApplication, QWidget, QFileDialog, QLabel, QVBoxLayout, QHBoxLayout, \
-    QFileSystemModel, QTreeView, QTextEdit, QListView, QSizePolicy, QGridLayout
+    QFileSystemModel, QTreeView, QTextEdit, QListView, QSizePolicy, QGridLayout, QAbstractItemView
 
 from models import *
 from data_Processing.image_cropping import *
@@ -51,7 +51,7 @@ with tf.device('/CPU:0'):
 
             # Tree and List view for file directory overview of pictures
             self.picture_directory_label = QLabel('Select a Picture:')
-            picture_dir_path = '\pictures'
+            picture_dir_path = 'pictures\\'
             picture_file_path = 'pictures\\'
             self.treeview_picture = QTreeView()
             self.listview_picture = QListView()
@@ -61,14 +61,14 @@ with tf.device('/CPU:0'):
             self.dirModel_picture.setFilter(QDir.NoDotAndDotDot | QDir.AllDirs)
 
             self.fileModel_picture = QFileSystemModel()
-            self.fileModel_picture.setRootPath(picture_file_path)
+            self.fileModel_picture.setRootPath(picture_file_path)  #
             self.fileModel_picture.setFilter(QDir.NoDotAndDotDot | QDir.Files)
 
             self.treeview_picture.setModel(self.dirModel_picture)
             self.listview_picture.setModel(self.fileModel_picture)
 
             self.treeview_picture.setRootIndex(self.dirModel_picture.index(picture_dir_path))
-            self.listview_picture.setRootIndex(self.fileModel_picture.index(picture_file_path))
+            self.listview_picture.setRootIndex(self.fileModel_picture.index(picture_file_path))  #
             self.treeview_picture.setCurrentIndex(self.dirModel_picture.index(0, 0))
 
             self.treeview_picture.clicked.connect(self.on_picture_treeview_clicked)
@@ -102,6 +102,7 @@ with tf.device('/CPU:0'):
 
             self.listview_model_binary.setModel(self.dirModel_model_binary)
             self.listview_model_binary.setRootIndex(self.dirModel_model_binary.index(model_binary_path))
+            self.listview_model_binary.setSelectionMode(QAbstractItemView.MultiSelection)
             self.listview_model_binary.clicked.connect(self.on_model_binary_listview_clicked)
 
             # Layout handling.
@@ -224,20 +225,26 @@ with tf.device('/CPU:0'):
             global currently_selected_model_name
             global currently_selected_picture
 
-            selected_model_path = self.dirModel_model_binary.fileInfo(index).absoluteFilePath()
-            selected_model_name = os.path.split(selected_model_path)
-            currently_selected_model_name = selected_model_name[1]
-            split = selected_model_name[1].split('_')
-            selected_model_category = split[4]
-            selected_model_version = split[0] + '_' + split[1] + '_' + split[2] + '_' + split[3]
-            currently_selected_model = self.getModel(selected_model_version, selected_model_path)
+            currently_selected_model_name = []
+            currently_selected_model = []
+            for x in self.listview_model_binary.selectedIndexes():
+                selected_model_path = self.dirModel_model_binary.fileInfo(index).absoluteFilePath()
+                currently_selected_model_name.append(os.path.split(selected_model_path)[1])
+
+                split = os.path.split(selected_model_path)[1].split('_')
+                selected_model_category = split[4]
+                selected_model_version = split[0] + '_' + split[1] + '_' + split[2] + '_' + split[3]
+                # print(selected_model_version)
+                currently_selected_model.append(self.getModel(selected_model_version, selected_model_path))
 
             if currently_selected_picture != 'Currently No Image Selected':
-                new_prediction = self.makePrediction(currently_selected_model,
-                                                     self.convertPictureToNumpy(currently_selected_picture))
-                self.picture_name_label.setText(currently_selected_picture)
-                self.picture_label.setPixmap(QtGui.QPixmap(currently_selected_picture))
-                self.show_binary_prediction(new_prediction, selected_model_category)
+                self.prediction_text.setText('')
+                for x in currently_selected_model:
+                    new_prediction = self.makePrediction(x,
+                                                         self.convertPictureToNumpy(currently_selected_picture))
+                    self.picture_name_label.setText(currently_selected_picture)
+                    self.picture_label.setPixmap(QtGui.QPixmap(currently_selected_picture))
+                    self.show_binary_prediction(new_prediction, selected_model_category)
 
         def getModel(self, model_version, model_path):
             model = getattr(sys.modules[__name__], model_version)()
@@ -251,6 +258,11 @@ with tf.device('/CPU:0'):
             image = image / 255.0
             return input_model.predict(image)
 
+        def convertPictureToNumpy(self, filename):
+            img = Image.open(filename)
+            np_array = np.array(img, dtype='uint8')
+            return np_array
+
         def show_five_prediction(self, prediction):
             self.prediction_text.setText("Probability of Negative: %s" % prediction[0, 0] +
                                          "\n\nProbability of Benign Calcification: %s" % prediction[0, 1] +
@@ -261,22 +273,17 @@ with tf.device('/CPU:0'):
 
         def show_binary_prediction(self, prediction, category):
             if category == 'neg':
-                self.prediction_text.setText("Probability of Negative: %s" % prediction[0, 0])
+                self.prediction_text.append("Probability of Negative: %s" % prediction[0, 0])
             elif category == 'bc':
-                self.prediction_text.setText("Probability of Benign Calcification: %s" % prediction[0, 0])
+                self.prediction_text.append("Probability of Benign Calcification: %s" % prediction[0, 0])
             elif category == 'bm':
-                self.prediction_text.setText("Probability of Benign Mass: %s" % prediction[0, 0])
+                self.prediction_text.append("Probability of Benign Mass: %s" % prediction[0, 0])
             elif category == 'mc':
-                self.prediction_text.setText("Probability of Malignant Calcification: %s" % prediction[0, 0])
+                self.prediction_text.append("Probability of Malignant Calcification: %s" % prediction[0, 0])
             elif category == 'mm':
-                self.prediction_text.setText("Probability of Malignant Mass: %s" % prediction[0, 0])
+                self.prediction_text.append("Probability of Malignant Mass: %s" % prediction[0, 0])
 
-        def convertPictureToNumpy(self, filename):
-            img = Image.open(filename)
-            np_array = np.array(img, dtype='uint8')
-            return np_array
-
-        def getFileName(self):
+        def openFileDialog(self):
             fileName, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "",
                                                       "All Files (*);;Python Files (*.py)")
             if fileName:
