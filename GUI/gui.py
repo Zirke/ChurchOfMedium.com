@@ -177,10 +177,13 @@ with tf.device('/CPU:0'):
 
             try:
                 Image.open(currently_selected_picture)
+                self.resized_picture = self.picture.scaled(299, 299, Qt.KeepAspectRatio, Qt.FastTransformation)
+                self.picture_label.setPixmap(self.resized_picture)
                 self.picture_name_label.setText(currently_selected_picture)
-                self.picture_label.setPixmap(QtGui.QPixmap(currently_selected_picture))
+                # self.picture_label.setPixmap(QtGui.QPixmap(currently_selected_picture))
             except IOError:
                 print('Exception: Chosen file is not a picture')
+
             # Checks if the selected picture has size 299
             image_in = cv2.imread(currently_selected_picture)
             size = image_in.shape[:2]
@@ -234,7 +237,6 @@ with tf.device('/CPU:0'):
                 split = os.path.split(selected_model_path)[1].split('_')
                 selected_model_category = split[4]
                 selected_model_version = split[0] + '_' + split[1] + '_' + split[2] + '_' + split[3]
-                # print(selected_model_version)
                 currently_selected_model.append(self.getModel(selected_model_version, selected_model_path))
 
             if currently_selected_picture != 'Currently No Image Selected':
@@ -273,15 +275,15 @@ with tf.device('/CPU:0'):
 
         def show_binary_prediction(self, prediction, category):
             if category == 'neg':
-                self.prediction_text.append("Probability of Negative: %s" % prediction[0, 0])
+                self.prediction_text.append("Probability of Negative: %s \n" % prediction[0, 0])
             elif category == 'bc':
-                self.prediction_text.append("Probability of Benign Calcification: %s" % prediction[0, 0])
+                self.prediction_text.append("Probability of Benign Calcification: %s \n" % prediction[0, 0])
             elif category == 'bm':
-                self.prediction_text.append("Probability of Benign Mass: %s" % prediction[0, 0])
+                self.prediction_text.append("Probability of Benign Mass: %s \n" % prediction[0, 0])
             elif category == 'mc':
-                self.prediction_text.append("Probability of Malignant Calcification: %s" % prediction[0, 0])
+                self.prediction_text.append("Probability of Malignant Calcification: %s \n" % prediction[0, 0])
             elif category == 'mm':
-                self.prediction_text.append("Probability of Malignant Mass: %s" % prediction[0, 0])
+                self.prediction_text.append("Probability of Malignant Mass: %s \n" % prediction[0, 0])
 
         def openFileDialog(self):
             fileName, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "",
