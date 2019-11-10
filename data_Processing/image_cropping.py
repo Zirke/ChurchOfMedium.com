@@ -25,7 +25,7 @@ def resize_image_padding(image_path):
     image_out = cv2.copyMakeBorder(image_in, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color)
     image_name = os.path.split(image_path)[1].split('.')[0]
     crop_image(image_out, image_name)
-    return image_name
+    return image_name, image_out
 
 
 def crop_image(input_image, image_name):
