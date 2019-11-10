@@ -30,7 +30,7 @@ def tensorboard_callback(log_dir, freq):
                                           write_images=True)
 
 
-def checkpoint_callback(model, category, diagnosis):
+def checkpoint_callback(model, category, *diagnosis):
     if category == 'five':
         i = datetime.datetime.now().strftime("%d-%m-%Y-H%HM%M")
         if os.path.exists("trained_five_Models/%s_%s" % (model, i)):

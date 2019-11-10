@@ -111,6 +111,6 @@ venv.bak/
 /dataset/cv10_data/
 /dataset/cv10_labels.npy
 /dataset/test10_labels.npy
-/trained_Models/
+/trained_five_Models/
 /logs/
 /sorted_tfrecords/
