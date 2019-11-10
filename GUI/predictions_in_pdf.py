@@ -12,7 +12,7 @@ from PIL import Image
 import datetime
 import reportlab as rl
 from data_Processing.image_cropping import *
-from models.Model_Version_1_06c import *
+from models import *
 import sys
 import numpy as np
 
@@ -73,20 +73,20 @@ def create_header(c, model, file_name, width, height):
     c.drawString(width // 2, height // 4 - 30, mdl_vers)
 
 
-def write_predictons(model, img, y, c):
+def write_predictons(model, img, y, c, model_pth):
     x = 300
     op_img = Image.open(img).convert('L')
     np_img = np.array(op_img)
     predictions = make_prediction(model, np_img)
     init_pred = predictions[0, 0]
     index = 0
-    for pred in range(1,5):
+    for pred in range(1,len(predictions[0])):
         if init_pred < predictions[0, pred]:
             init_pred = predictions[0, pred]
             index = pred
 
     num_y = y + 110
-    for i in range(5):
+    for i in range(len(predictions[0])):
         c.drawString(x, num_y, '%0.5f' % predictions[0, i])
         if i == index and i == 0:
             rec_color = Color(0, 100, 0, alpha=0.5)
@@ -102,11 +102,28 @@ def write_predictons(model, img, y, c):
         num_y -= 20
 
     text_x = x + 50
-    c.drawString(text_x, y + 110, 'Negative')
-    c.drawString(text_x, y + 90, 'Benign calcification')
-    c.drawString(text_x, y + 70, 'Benign mass')
-    c.drawString(text_x, y + 50, 'Malignant calcification')
-    c.drawString(text_x, y + 30, 'Malignant mass')
+    if (str(model).split('_'))[2] == str(1):
+        c.drawString(text_x, y + 110, 'Negative')
+        c.drawString(text_x, y + 90, 'Benign calcification')
+        c.drawString(text_x, y + 70, 'Benign mass')
+        c.drawString(text_x, y + 50, 'Malignant calcification')
+        c.drawString(text_x, y + 30, 'Malignant mass')
+    elif str(model).split('_')[2] == str(2):
+        if str(model_pth).split('_')[6] == 'neg':
+            c.drawString(text_x, y + 110, 'Negative')
+            c.drawString(text_x, y + 90, 'Positive')
+        elif str(model_pth).split('_')[6] == 'bc':
+            c.drawString(text_x, y + 110, 'Other diagnosis')
+            c.drawString(text_x, y + 90, 'Benign calcification')
+        elif str(model_pth).split('_')[6] == 'bm':
+            c.drawString(text_x, y + 110, 'Other diagnosis')
+            c.drawString(text_x, y + 90, 'Benign mass')
+        elif str(model_pth).split('_')[6] == 'mc':
+            c.drawString(text_x, y + 110, 'Other diagnosis')
+            c.drawString(text_x, y + 90, 'Malignant calcification')
+        elif str(model_pth).split('_')[6] == 'mm':
+            c.drawString(text_x, y + 110, 'Other diagnosis')
+            c.drawString(text_x, y + 90, 'Malignant mass')
 
     if index > 0:
         return index
@@ -147,7 +164,7 @@ def original_to_padded(original_file):
     return 'pictures/padded_images/%s' % (original_file.split('/'))[2]
 
 
-def image_product_maker(file_path, c, width, height, pred_array, amount_of_imgs):
+def image_product_maker(file_path, c, width, height, pred_array, model):
     """ creates the padded image with marked areas"""
     image_in = cv2.imread(file_path)
     size = image_in.shape[:2]
@@ -182,7 +199,8 @@ def image_product_maker(file_path, c, width, height, pred_array, amount_of_imgs)
             y -= pic_height // 4
 
     c.setFont("Times-Roman", 12)
-    end_of_file_text(c, diagnosis, x, y+small_pic_height)
+    if model == '1':
+        end_of_file_text(c, diagnosis, x, y+small_pic_height)
 
 
 def page_header(c, height, width):
@@ -239,7 +257,7 @@ def create_file(file_path, original_file, tr_model_version, model_path):
     for filename in os.listdir(fp[:-3]):
         img_fp = fp[:-3] + '/' + filename
         add_image(img_fp, file_c, y, width, amount_of_imgs, next_page)
-        pred_array.append(write_predictons(model, img_fp, y, file_c))
+        pred_array.append(write_predictons(model, img_fp, y, file_c, model_path))
         y -= 180
         next_page += 1
         if next_page % 4 == 0:
@@ -249,15 +267,15 @@ def create_file(file_path, original_file, tr_model_version, model_path):
             y = height - 220
 
     padded_image_save(original_file)
-    image_product_maker(original_to_padded(original_file), file_c, width, height, pred_array, amount_of_imgs)
+    image_product_maker(original_to_padded(original_file), file_c, width, height, pred_array, (tr_model_version.split("_"))[2])
     file_c.save()
 
 
 if __name__ == '__main__':
-    image = 'pictures/non_cropped/mdb134.jpg'
+    image = 'pictures/non_cropped/mdb136.jpg'
     resize_image_padding(image)
-    create_file('GUI/withimage.pdf',
+    create_file('GUI/five.pdf',
                 image,
                 'Model_Version_1_06c',
-                'C:/Users/120392/PycharmProjects/ChurchOfMedium.com/trained_five_Models/Model_Version_1_06c_09-11-2019-H08M38'
+                'C:/Users/120392/PycharmProjects/ChurchOfMedium.com/trained_five_Models/Model_Version_1_06c_10-11-2019-H18M08'
                 )

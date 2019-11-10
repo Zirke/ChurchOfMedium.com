@@ -58,7 +58,6 @@ if __name__ == '__main__':
 
 
 def main_management(request):
-    print(request)
     if request == 'Five':
         return ['sorted_tfrecords/five_diagnosis/five_diagnosis_split_training.tfrecord',
                 'sorted_tfrecords/five_diagnosis/five_diagnosis_split_val.tfrecord',

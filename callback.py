@@ -49,7 +49,7 @@ def checkpoint_callback(model, category, *diagnosis):
             print("Model with datetime" + i + " already exists")
             sys.exit()
         else:
-            checkpoint_path = "trained_binary_Models/" + model + "_" + diagnosis + "_" + i + "/cp.ckpt"
+            checkpoint_path = "trained_binary_Models/" + model + "_" + diagnosis[0] + "_" + i + "/cp.ckpt"
         return tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,
                                                   save_weights_only=True,
                                                   verbose=1,
