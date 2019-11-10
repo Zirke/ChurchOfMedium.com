@@ -197,7 +197,7 @@ with tf.device('/CPU:0'):
                     self.prediction_text.setText('No Model is Chosen for Prediction. Choose one to the left.')
             # If the selected picture is not size 299 it will be padded and cropped
             else:
-                cropped_images = resize_image_padding(currently_selected_picture)
+                cropped_images, _ = resize_image_padding(currently_selected_picture)
                 self.listview_picture.setRootIndex(
                     self.fileModel_picture.setRootPath('pictures/cropped/%s' % cropped_images))
 
@@ -207,8 +207,9 @@ with tf.device('/CPU:0'):
             global currently_selected_picture
 
             selected_model_path = self.dirModel_model.fileInfo(index).absoluteFilePath()
-            currently_selected_model_name = os.path.split(selected_model_path)[1]
-            split = currently_selected_model_name.split('_')
+            selected_model_name = os.path.split(selected_model_path)
+            currently_selected_model_name = selected_model_name[1]
+            split = selected_model_name[1].split('_')
             selected_model_version = split[0] + '_' + split[1] + '_' + split[2] + '_' + split[3]
             currently_selected_model = self.getModel(selected_model_version, selected_model_path)
 
@@ -219,30 +220,32 @@ with tf.device('/CPU:0'):
                 self.picture_label.setPixmap(QtGui.QPixmap(currently_selected_picture))
                 self.show_five_prediction(new_prediction)
 
-        def on_model_binary_listview_clicked(self):
+        def on_model_binary_listview_clicked(self, index):
             global currently_selected_model
             global currently_selected_model_name
             global currently_selected_picture
 
-            self.prediction_text.setText('')
             currently_selected_model_name = []
             currently_selected_model = []
+            for x in self.listview_model_binary.selectedIndexes():
+                selected_model_path = self.dirModel_model_binary.fileInfo(index).absoluteFilePath()
+                currently_selected_model_name.append(os.path.split(selected_model_path)[1])
+
+                split = os.path.split(selected_model_path)[1].split('_')
+                selected_model_category = split[4]
+                selected_model_version = split[0] + '_' + split[1] + '_' + split[2] + '_' + split[3]
+                currently_selected_model.append(self.getModel(selected_model_version, selected_model_path))
 
             if currently_selected_picture != 'Currently No Image Selected':
-                for x in self.listview_model_binary.selectedIndexes():
-                    selected_model_path = self.dirModel_model_binary.fileInfo(x).absoluteFilePath()
-                    currently_selected_model_name.append(os.path.split(selected_model_path)[1])
-                    currently_selected_model.append(self.getModel(selected_model_path))
-
-                for y in currently_selected_model:
-                    new_prediction = self.makePrediction(y,
+                self.prediction_text.setText('')
+                for x in currently_selected_model:
+                    new_prediction = self.makePrediction(x,
                                                          self.convertPictureToNumpy(currently_selected_picture))
-                    self.show_binary_prediction(new_prediction, y.category)
+                    self.picture_name_label.setText(currently_selected_picture)
+                    self.picture_label.setPixmap(QtGui.QPixmap(currently_selected_picture))
+                    self.show_binary_prediction(new_prediction, selected_model_category)
 
-        def getModel(self, model_path):
-            split = os.path.split(model_path)[1].split('_')
-            model_version = split[0] + '_' + split[1] + '_' + split[2] + '_' + split[3]
-
+        def getModel(self, model_version, model_path):
             model = getattr(sys.modules[__name__], model_version)()
             checkpoint_path = model_path + '/cp.ckpt'
             model.load_weights(checkpoint_path)
@@ -252,6 +255,7 @@ with tf.device('/CPU:0'):
             image = tf.reshape(input_picture, [-1, 299, 299, 1])
             image = tf.cast(image, tf.float32)
             image = image / 255.0
+            print(image)
             return input_model.predict(image)
 
         def convertPictureToNumpy(self, filename):
@@ -269,17 +273,15 @@ with tf.device('/CPU:0'):
 
         def show_binary_prediction(self, prediction, category):
             if category == 'neg':
-                self.prediction_text.append("Probability of Negative: %s \n" % prediction[0, 0])
+                self.prediction_text.append("Probability of Negative: %s" % prediction[0, 0])
             elif category == 'bc':
-                self.prediction_text.append("Probability of Benign Calcification: %s \n" % prediction[0, 0])
+                self.prediction_text.append("Probability of Benign Calcification: %s" % prediction[0, 0])
             elif category == 'bm':
-                self.prediction_text.append("Probability of Benign Mass: %s \n" % prediction[0, 0])
+                self.prediction_text.append("Probability of Benign Mass: %s" % prediction[0, 0])
             elif category == 'mc':
-                self.prediction_text.append("Probability of Malignant Calcification: %s \n" % prediction[0, 0])
+                self.prediction_text.append("Probability of Malignant Calcification: %s" % prediction[0, 0])
             elif category == 'mm':
-                self.prediction_text.append("Probability of Malignant Mass: %s \n" % prediction[0, 0])
-            else:
-                self.prediction_text.append("Probability of ????: %s \n" % prediction[0, 0])
+                self.prediction_text.append("Probability of Malignant Mass: %s" % prediction[0, 0])
 
         def openFileDialog(self):
             fileName, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "",
