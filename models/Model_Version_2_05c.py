@@ -7,6 +7,8 @@ class Model_Version_2_05c(tf.keras.Model):
     def __init__(self):
         super(Model_Version_2_05c, self).__init__()
 
+        self.category = 'mm'
+
         # first convolutional layer
         self.conv_layer_1 = Conv2D(32,  # filters
                             (3, 3),  # Kernel size

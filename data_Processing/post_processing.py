@@ -16,9 +16,9 @@ def plot_history(history):
     plt.plot(history.history['val_recall'], label='val_recall')
     plt.xlabel('Epoch')
     plt.ylabel('Metrics')
-    plt.ylim([0.01, 1])
+    plt.ylim([0, 1])
     plt.legend(loc='lower right')
-
+    plt.grid(True)
     plt.show()
 
 def plot_recall(history):
@@ -26,9 +26,10 @@ def plot_recall(history):
     plt.plot(history.history['val_recall'], label='val_recall')
     plt.xlabel('Epoch')
     plt.ylabel('Recall')
-    plt.ylim([0.1, 1])
+    plt.ylim([0, 1])
     plt.legend(loc='lower right')
 
+    plt.grid()
     plt.show()
 
 
