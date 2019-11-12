@@ -17,7 +17,7 @@ process_dataset() gives dataset for 5 classes dataset
 
 from data_Processing.binary_pre_processing import *
 """
-parsed_training_data, parsed_val_data, parsed_testing_data = process_data(five_diagnosis_paths)
+parsed_training_data, parsed_val_data, parsed_testing_data = process_data(malignant_mass_split_paths)
 
 FILE_SIZE = len(list(parsed_training_data))  # Training dataset size
 TEST_SIZE = len(list(parsed_val_data))  # Validation and test dataset size
@@ -33,10 +33,10 @@ print("here")
 if os.path.isdir('logs'):
     shutil.rmtree('logs')
 
-model = Model_Version_1_06c()
+model = Model_Version_2_05c()
 
 # initializing the callback
-es_callback = early_stopping_callback('val_loss', 5)
+es_callback = early_stopping_callback('val_categorical_accuracy', 5)
 ms_callback = manual_stopping_callback()
 tb_callback = tensorboard_callback("logs", 1)
 model_string = str(model).split(".")
@@ -48,7 +48,8 @@ if __name__ == '__main__':
 
 model.compile(optimizer=tf.keras.optimizers.Adam(),
               loss=tf.keras.losses.CategoricalCrossentropy(),
-              metrics=[tf.metrics.CategoricalAccuracy(), keras_metrics.precision(), keras_metrics.recall()])
+              metrics=[tf.metrics.CategoricalAccuracy(), keras_metrics.categorical_false_negative(),
+                       keras_metrics.categorical_false_positive(), keras_metrics.recall()])
 
 history = model.fit(
     batched_training_data,
@@ -58,7 +59,7 @@ history = model.fit(
     epochs=EPOCHS,
     shuffle=True,
     verbose=2,  # ,  # verbose is the progress bar when training
-    callbacks=[cp_callback]
+    callbacks=[cp_callback, es_callback]
 )
 
 # Evaluate the model on unseen testing data
@@ -67,7 +68,7 @@ results = model.evaluate(batched_val_data, steps=TEST_SIZE // BATCH_SIZE)
 print('test loss, test acc:', results)
 
 # History displaying training and validation accuracy
-plot_multi_label_predictions(batched_testing_data, model, 10)
+plot_binary_label_predictions(batched_testing_data, model, 10)
 plot_history(history)
 
 # Open Tensorboard
