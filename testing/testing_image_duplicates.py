@@ -1,13 +1,15 @@
 import unittest
+import os
 import numpy as np
 from collections import Counter
 from data_Processing.binary_pre_processing import *
 from sorting_hub import *
 
+os.chdir('../')
 
 class MyTestCase(unittest.TestCase):
     def test_image_duplicates(self):
-        training_data, validation_data, testing_data = process_data(five_diagnosis_paths)
+        training_data, validation_data, testing_data = process_data(malignant_cal_split_paths)
         array = []
         for image, label in training_data:
             image = image.numpy()
@@ -25,11 +27,11 @@ class MyTestCase(unittest.TestCase):
         duplicate_counter = 0
         outer = 0
         inner = 1
-        while outer <= len(array) - 1:
-            while inner <= len(array):
+        while outer < (len(array) - 1):
+            while inner < len(array):
                 if np.all(array[outer] == array[inner]):
                     duplicate_counter += 1
-                    inner += 1
+                inner += 1
             outer += 1
 
         self.assertTrue(duplicate_counter == 0)
