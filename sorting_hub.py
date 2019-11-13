@@ -108,3 +108,4 @@ malignant_mass_split_paths = ['sorted_tfrecords/malignant_mass/malignant_mass_sp
 five_diagnosis_paths = ['sorted_tfrecords/five_diagnosis/five_diagnosis_split_training.tfrecord',
                         'sorted_tfrecords/five_diagnosis/five_diagnosis_split_val.tfrecord',
                         'sorted_tfrecords/five_diagnosis/five_diagnosis_split_test.tfrecord', ]
+
