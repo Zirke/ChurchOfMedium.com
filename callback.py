@@ -54,3 +54,23 @@ def checkpoint_callback(model, category, *diagnosis):
                                                   save_weights_only=True,
                                                   verbose=1,
                                                   )
+
+
+class SavePredCallback(tf.keras.callbacks.Callback):
+    def __init__(self, val_data, filepath):
+        self.out_log = []
+        self.val_data = val_data
+        self.file_path = filepath
+
+    def on_epoch_end(self, epoch, logs={}):
+        file = open(self.file_path, "a")
+        file.write('Epoch :' + str(epoch)+'\n')
+        batch_counter = 0
+        self.out_log.append(epoch)
+        for batch, label_batch in self.val_data:
+            file.write("batch :" + str(batch_counter) + '\n')
+            for image, label in zip(batch, label_batch):
+                image = tf.reshape(image.numpy(), [1,299, 299,1])
+                file.write(str(self.model.predict(image)) + '#' + str(label.numpy()) + '\n')
+            batch_counter += 1
+        file.close()
