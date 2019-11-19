@@ -12,8 +12,8 @@ def plot_history(history):
 
     plt.plot(history.history['categorical_accuracy'], label='accuracy')
     plt.plot(history.history['val_categorical_accuracy'], label='val_accuracy')
-    plt.plot(history.history['val_precision'], label='val_precision')
-    plt.plot(history.history['val_recall'], label='val_recall')
+    plt.plot(history.history['val_false_positive'], label='val_FP')
+    plt.plot(history.history['val_false_negative'], label='val_FN')
     plt.xlabel('Epoch')
     plt.ylabel('Metrics')
     plt.ylim([0, 1])

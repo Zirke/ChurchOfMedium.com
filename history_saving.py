@@ -4,8 +4,16 @@ def save_history(history, filepath):
     write_metric_to_model(file, history, 'val_categorical_accuracy')
     write_metric_to_model(file, history, 'val_precision')
     write_metric_to_model(file, history, 'val_recall')
+    write_metric_to_model(file, history, 'precision')
+    write_metric_to_model(file, history, 'recall')
     write_metric_to_model(file, history, 'val_false_negative')
     write_metric_to_model(file, history, 'val_false_positive')
+    write_metric_to_model(file, history, 'false_negative')
+    write_metric_to_model(file, history, 'false_positive')
+    write_metric_to_model(file, history, 'true_negative')
+    write_metric_to_model(file, history, 'true_positive')
+
+
 
 #writes a particular metric values to a file. In the file a '#' will precede the metric name to distinguish between substrings (metrics)
 def write_metric_to_model(file, history, metric):

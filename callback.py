@@ -73,7 +73,6 @@ class SavePredCallback(tf.keras.callbacks.Callback):
 
 def load_saved_pred(filepath):
     prediction, true_label, batches = [], [], []
-    counter = 0
     with open(filepath, 'r') as myfile:
         data = myfile.read()
         data = data.split('Epoch')

@@ -56,7 +56,7 @@ def decode_low_wide(serialized_example):
 
 
 # Main method for writing tfrecords. Requires the destined file location as well as the name of the sorting algorithm.
-def binary_classification(file_paths, sorting_algorithm):
+def dataset_sort(file_paths, sorting_algorithm):
     dataset = get_full_dataset()
 
     image_array, label_array = [], []
