@@ -189,9 +189,7 @@ class Model_Version_1_05c(tf.keras.Model):
         x = self.maxpool1(x)
         x = self.flatten(x)
         x = self.d1(x)
-        x = self.drop(x)
         x = self.d2(x)
-        x = self.drop(x)
         return self.d3(x)
 
     def model(self):

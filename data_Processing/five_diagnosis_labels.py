@@ -6,7 +6,7 @@ Purpose of this file is to create two arrays that consist of images and labels f
 of 5 diagnosis types, negative, benign cal, benign mass, malignant cal, malignant mass. 
 
 The sorting is to take all of the 4 positive type categories and turn them into it array, then 
-get roughly 30% of the arrays size and append as many negative images to it. 
+get roughly 20% of the arrays size and append as many negative images to it. 
 """
 
 
