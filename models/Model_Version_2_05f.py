@@ -1,11 +1,11 @@
 import tensorflow as tf
 from tensorflow.keras import Model
-from tensorflow.keras.layers import Dense, Flatten, Conv2D, MaxPooling2D, ZeroPadding2D, Input, Dropout
+from tensorflow.keras.layers import Dense, Flatten, Conv2D, MaxPooling2D, AveragePooling2D, ZeroPadding2D, Input, Dropout
 
 
-class Model_Version_2_05c(tf.keras.Model):
+class Model_Version_2_05f(tf.keras.Model):
     def __init__(self):
-        super(Model_Version_2_05c, self).__init__()
+        super(Model_Version_2_05f, self).__init__()
 
         self.category = 'mm'
 
@@ -28,7 +28,7 @@ class Model_Version_2_05c(tf.keras.Model):
                             bias_constraint=None,  #
                             )
 
-        self.max_pool_1 = MaxPooling2D(pool_size=(2, 2),  # pool size
+        self.max_pool_1 = AveragePooling2D(pool_size=(2, 2),  # pool size
                                         strides=(2, 2),  # stride size
                                         padding='valid',  # padding
                                         data_format=None)
@@ -53,7 +53,7 @@ class Model_Version_2_05c(tf.keras.Model):
                                    bias_constraint=None,  #
                                    )
 
-        self.max_pool_2 = MaxPooling2D(pool_size=(2, 2),  # pool size
+        self.max_pool_2 = AveragePooling2D(pool_size=(2, 2),  # pool size
                                        strides=(2, 2),  # stride size
                                        padding='valid',  # padding
                                        data_format=None)
@@ -77,7 +77,7 @@ class Model_Version_2_05c(tf.keras.Model):
                                    kernel_constraint=None,  #
                                    bias_constraint=None,  #
                                    )
-        self.max_pool_3 = MaxPooling2D(pool_size=(2, 2),  # pool size
+        self.max_pool_3 = AveragePooling2D(pool_size=(2, 2),  # pool size
                                        strides=(2, 2),  # stride size
                                        padding='valid',  # padding
                                        data_format=None)
@@ -101,16 +101,18 @@ class Model_Version_2_05c(tf.keras.Model):
                                    kernel_constraint=None,  #
                                    bias_constraint=None,  #
                                    )
-        self.max_pool_4 = MaxPooling2D(pool_size=(2, 2),  # pool size
+        self.max_pool_4 = AveragePooling2D(pool_size=(2, 2),  # pool size
                                        strides=(2, 2),  # stride size
                                        padding='valid',  # padding
                                        data_format=None)
         self.flatten = Flatten()
 
+        self.dropout_x_layer = tf.keras.layers.Dropout(rate=0.1)
+
         self.fc_layer_1 = Dense(256,  # Amount of neurons
                                 activation='relu',  # Activation function
                                 use_bias=True,  # bias is enabled
-                                kernel_regularizer=tf.keras.regularizers.l1(),
+                                kernel_regularizer=tf.keras.regularizers.l2(0.01),
                                 bias_initializer='zeros',  # initialisation of bias
                                 bias_regularizer=None,  # regularize biases
                                 activity_regularizer=None,  #
@@ -120,7 +122,7 @@ class Model_Version_2_05c(tf.keras.Model):
         self.fc_layer_2 = Dense(256,  # Amount of neurons
                                 activation='relu',  # Activation function
                                 use_bias=True, # bias is enabled
-                                kernel_regularizer=tf.keras.regularizers.l1(),
+                                kernel_regularizer=tf.keras.regularizers.l2(0.01),
                                 bias_initializer='zeros',  # initialisation of bias
                                 bias_regularizer=None,  # regularize biases
                                 activity_regularizer=None,  #
@@ -146,6 +148,7 @@ class Model_Version_2_05c(tf.keras.Model):
         x = self.max_pool_4(x)
         x = self.flatten(x)
         x = self.fc_layer_1(x)
+       # x = self.dropout_x_layer(x)
         x = self.fc_layer_2(x)
         return self.output_layer(x)
 

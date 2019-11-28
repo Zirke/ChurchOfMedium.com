@@ -26,7 +26,7 @@ To change dataset set CONTROL_VARIABLE to one of the following:
  - 'MalignantM'
 """
 # TODO add model to CONTROL_VARIABLE
-MODEL = Model_Version_2_05f()
+MODEL = Model_Version_2_06f()
 CONTROL_VARIABLE = 'MalignantM'
 
 path_holder, type_holder, class_holder = main_management(CONTROL_VARIABLE)
@@ -35,7 +35,7 @@ parsed_training_data, parsed_val_data, parsed_testing_data = process_data(path_h
 FILE_SIZE = len(list(parsed_training_data))  # Training dataset size
 TEST_SIZE = len(list(parsed_val_data))  # Validation and test dataset size
 BATCH_SIZE = 32
-EPOCHS = 50
+EPOCHS = 10000
 
 # batching the dataset into 32-size mini-batches
 batched_training_data = parsed_training_data.batch(BATCH_SIZE).repeat(EPOCHS)  # BATCH_SIZE
@@ -47,7 +47,7 @@ if os.path.isdir('logs'):
     shutil.rmtree('logs')
 
 # initializing the callback
-es_callback = early_stopping_callback('val_loss', 5)
+es_callback = early_stopping_callback('val_categorical_accuracy', 5)
 ms_callback = manual_stopping_callback()
 tb_callback = tensorboard_callback("logs", 1)
 model_string = str(MODEL).split(".")
@@ -62,7 +62,7 @@ MODEL.compile(optimizer=tf.keras.optimizers.Adam(),
               metrics=[tf.metrics.CategoricalAccuracy(),
                        keras_metrics.categorical_false_negative(),
                        keras_metrics.categorical_false_positive(),
-                       keras_metrics.categorical_metric(),
+#                       keras_metrics.categorical_metric(),
                        keras_metrics.categorical_true_negative(),
                        keras_metrics.categorical_true_positive(),
                        keras_metrics.precision(),
@@ -76,7 +76,7 @@ history = MODEL.fit(
     epochs=EPOCHS,
     shuffle=True,
     verbose=2,
-    callbacks=[cp_callback]
+    callbacks=[es_callback, cp_callback]
 )
 
 # Evaluate the model on unseen testing data
