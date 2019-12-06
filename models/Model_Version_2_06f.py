@@ -11,8 +11,8 @@ class Model_Version_2_06f(tf.keras.Model):
 
         # first convolutional layer
         self.conv_layer_1 = Conv2D(32,  # filters
-                            (9, 9),  # Kernel size
-                            strides=(5, 5),  # Stride
+                            (3, 3),  # Kernel size
+                            strides=(1, 1),  # Stride
                             padding='same',  # Same refers to same padding as previous layer.
                             data_format=None,
                             # It should be defined if the dimensions are structured in non standard approach
@@ -34,8 +34,8 @@ class Model_Version_2_06f(tf.keras.Model):
                                         data_format=None)
 
         self.conv_layer_2 = Conv2D(64,  # filters
-                                   (7, 7),  # Kernel size
-                                   strides=(3, 3),  # Stride
+                                   (3, 3),  # Kernel size
+                                   strides=(1, 1),  # Stride
                                    padding='same',  # Same refers to same padding as previous layer.
                                    data_format=None,
                                    # It should be defined if the dimensions are structured in non standard approach
@@ -59,7 +59,7 @@ class Model_Version_2_06f(tf.keras.Model):
                                        data_format=None)
 
         self.conv_layer_3 = Conv2D(128,  # filters
-                                   (5, 5),  # Kernel size
+                                   (3, 3),  # Kernel size
                                    strides=(1, 1),  # Stride
                                    padding='same',  # Same refers to same padding as previous layer.
                                    data_format=None,
@@ -83,7 +83,7 @@ class Model_Version_2_06f(tf.keras.Model):
                                        data_format=None)
 
         self.conv_layer_4 = Conv2D(128,  # filters
-                                   (9, 9),  # Kernel size
+                                   (3, 3),  # Kernel size
                                    strides=(1, 1),  # Stride
                                    padding='same',  # Same refers to same padding as previous layer.
                                    data_format=None,
@@ -101,8 +101,9 @@ class Model_Version_2_06f(tf.keras.Model):
                                    kernel_constraint=None,  #
                                    bias_constraint=None,  #
                                    )
+
         self.conv_layer_5 = Conv2D(128,  # filters
-                                   (7, 7),  # Kernel size
+                                   (3, 3),  # Kernel size
                                    strides=(1, 1),  # Stride
                                    padding='same',  # Same refers to same padding as previous layer.
                                    data_format=None,
@@ -121,7 +122,7 @@ class Model_Version_2_06f(tf.keras.Model):
                                    bias_constraint=None,  #
                                    )
         self.conv_layer_6 = Conv2D(128,  # filters
-                                   (5, 5),  # Kernel size
+                                   (3, 3),  # Kernel size
                                    strides=(1, 1),  # Stride
                                    padding='same',  # Same refers to same padding as previous layer.
                                    data_format=None,
@@ -219,11 +220,22 @@ class Model_Version_2_06f(tf.keras.Model):
                                        strides=(2, 2),  # stride size
                                        padding='valid',  # padding
                                        data_format=None)
+
+        self.max_pool_5 = AveragePooling2D(pool_size=(2, 2),  # pool size
+                                        strides=(2, 2),  # stride size
+                                        padding='valid',  # padding
+                                        data_format=None)
+
+        self.max_pool_6 = AveragePooling2D(pool_size=(2, 2),  # pool size
+                                        strides=(2, 2),  # stride size
+                                        padding='valid',  # padding
+                                        data_format=None)
+
         self.flatten = Flatten()
 
         self.dropout_x_layer = tf.keras.layers.Dropout(rate=0.3)
 
-        self.fc_layer_1 = Dense(256,  # Amount of neurons
+        self.fc_layer_1 = Dense(32,  # Amount of neurons
                                 activation='relu',  # Activation function
                                 use_bias=True,  # bias is enabled
                                 #kernel_regularizer=tf.keras.regularizers.l2(0.01),
@@ -233,7 +245,59 @@ class Model_Version_2_06f(tf.keras.Model):
                                 bias_constraint=None)  #
 
         # Dense is a fully connected layer
-        self.fc_layer_2 = Dense(256,  # Amount of neurons
+        self.fc_layer_2 = Dense(32,  # Amount of neurons
+                                activation='relu',  # Activation function
+                                use_bias=True, # bias is enabled
+                                #kernel_regularizer=tf.keras.regularizers.l2(0.01),
+                                bias_initializer='zeros',  # initialisation of bias
+                                bias_regularizer=None,  # regularize biases
+                                activity_regularizer=None,  #
+                                bias_constraint=None)  #
+        self.fc_layer_3 = Dense(256,  # Amount of neurons
+                                activation='relu',  # Activation function
+                                use_bias=True, # bias is enabled
+                                #kernel_regularizer=tf.keras.regularizers.l2(0.01),
+                                bias_initializer='zeros',  # initialisation of bias
+                                bias_regularizer=None,  # regularize biases
+                                activity_regularizer=None,  #
+                                bias_constraint=None)  #
+        self.fc_layer_4 = Dense(256,  # Amount of neurons
+                                activation='relu',  # Activation function
+                                use_bias=True, # bias is enabled
+                                #kernel_regularizer=tf.keras.regularizers.l2(0.01),
+                                bias_initializer='zeros',  # initialisation of bias
+                                bias_regularizer=None,  # regularize biases
+                                activity_regularizer=None,  #
+                                bias_constraint=None)  #
+
+        self.fc_layer_5 = Dense(256,  # Amount of neurons
+                                activation='relu',  # Activation function
+                                use_bias=True, # bias is enabled
+                                #kernel_regularizer=tf.keras.regularizers.l2(0.01),
+                                bias_initializer='zeros',  # initialisation of bias
+                                bias_regularizer=None,  # regularize biases
+                                activity_regularizer=None,  #
+                                bias_constraint=None)  #
+
+        self.fc_layer_6 = Dense(256,  # Amount of neurons
+                                activation='relu',  # Activation function
+                                use_bias=True, # bias is enabled
+                                #kernel_regularizer=tf.keras.regularizers.l2(0.01),
+                                bias_initializer='zeros',  # initialisation of bias
+                                bias_regularizer=None,  # regularize biases
+                                activity_regularizer=None,  #
+                                bias_constraint=None)  #
+
+        self.fc_layer_7 = Dense(256,  # Amount of neurons
+                                activation='relu',  # Activation function
+                                use_bias=True, # bias is enabled
+                                #kernel_regularizer=tf.keras.regularizers.l2(0.01),
+                                bias_initializer='zeros',  # initialisation of bias
+                                bias_regularizer=None,  # regularize biases
+                                activity_regularizer=None,  #
+                                bias_constraint=None)  #
+
+        self.fc_layer_8 = Dense(256,  # Amount of neurons
                                 activation='relu',  # Activation function
                                 use_bias=True, # bias is enabled
                                 #kernel_regularizer=tf.keras.regularizers.l2(0.01),
@@ -253,15 +317,17 @@ class Model_Version_2_06f(tf.keras.Model):
     # Call method should include all layers from model.
     def call(self, x):
         x = self.conv_layer_1(x)
-#        x = self.max_pool_1(x)
+        x = self.max_pool_1(x)
         x = self.conv_layer_2(x)
-#        x = self.max_pool_2(x)
+        x = self.max_pool_2(x)
         x = self.conv_layer_3(x)
-#        x = self.max_pool_3(x)
+        x = self.max_pool_3(x)
         x = self.conv_layer_4(x)
-#        x = self.max_pool_4(x)
+        x = self.max_pool_4(x)
         x = self.conv_layer_5(x)
+#        x = self.max_pool_5(x)
         x = self.conv_layer_6(x)
+#        x = self.max_pool_6(x)
         x = self.conv_layer_7(x)
         x = self.conv_layer_8(x)
 #        x = self.conv_layer_9(x)
@@ -270,6 +336,12 @@ class Model_Version_2_06f(tf.keras.Model):
         x = self.fc_layer_1(x)
         x = self.dropout_x_layer(x)
         x = self.fc_layer_2(x)
+#        x = self.fc_layer_3(x)
+#        x = self.fc_layer_4(x)
+#        x = self.fc_layer_5(x)
+#        x = self.fc_layer_6(x)
+#        x = self.fc_layer_7(x)
+#        x = self.fc_layer_8(x)
         return self.output_layer(x)
 
     def model(self):
