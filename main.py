@@ -1,5 +1,5 @@
-from ConfusionMatrix import Confusion_matrix
 from history_saving import save_history
+from models.Model_Version_2_07a import Model_Version_2_07a
 from sorting_hub import *
 from callback import *
 from data_Processing.post_processing import *
@@ -20,6 +20,9 @@ How to use main.py :
 Five Category is model = Model_Version_1_06c()
 Binary Model is model = Model_Version_2_05c()
 
+Final models;
+- Model_Version_Final_FD
+
 To change dataset set CONTROL_VARIABLE to one of the following:
  - 'Five'
  - 'Negative'
@@ -28,11 +31,8 @@ To change dataset set CONTROL_VARIABLE to one of the following:
  - 'MalignantC'
  - 'MalignantM'
 """
-# TODO add model to CONTROL_VARIABLE
-MODEL = Model_Version_1_06c()
+MODEL = Model_Version_Final_FD()
 CONTROL_VARIABLE = 'Five'
-
-tf.executing_eagerly()
 
 path_holder, type_holder, class_holder = main_management(CONTROL_VARIABLE)
 parsed_training_data, parsed_val_data, parsed_testing_data = process_data(path_holder)
@@ -40,11 +40,11 @@ parsed_training_data, parsed_val_data, parsed_testing_data = process_data(path_h
 FILE_SIZE = len(list(parsed_training_data))  # Training dataset size
 TEST_SIZE = len(list(parsed_val_data))  # Validation and test dataset size
 BATCH_SIZE = 32
-EPOCHS = 1
+EPOCHS = 50
 
 # batching the dataset into 32-size mini-batches
 batched_training_data = parsed_training_data.batch(BATCH_SIZE).repeat(EPOCHS)  # BATCH_SIZE
-batched_val_data = parsed_val_data.batch(BATCH_SIZE).repeat(EPOCHS)  # BATCH_SIZE
+batched_val_data = parsed_val_data.batch(BATCH_SIZE)  # BATCH_SIZE
 batched_testing_data = parsed_testing_data.batch(BATCH_SIZE)  # BATCH_SIZE
 
 # Clear Tensorboard
@@ -57,7 +57,7 @@ ms_callback = manual_stopping_callback()
 tb_callback = tensorboard_callback("logs", 1)
 model_string = str(MODEL).split(".")
 cp_callback = checkpoint_callback(str(model_string[len(model_string) - 2]), type_holder, class_holder)
-save_pred_callback = SavePredCallback(batched_val_data, 'C:/Users/120392/Desktop/Training/history/confusion_matrix.txt')
+save_pred_callback = SavePredCallback(batched_val_data, 'C:/Users/120392/Desktop/Training/history/final/c2onfusion_matrix')
 
 if __name__ == '__main__':
     sub = MODEL
@@ -77,15 +77,15 @@ MODEL.compile(optimizer=tf.keras.optimizers.SGD(),
 history = MODEL.fit(
     batched_training_data,
     steps_per_epoch= FILE_SIZE // BATCH_SIZE,  # FILE_SIZE
-    validation_data=batched_testing_data,
+    validation_data=batched_val_data,
     validation_steps=TEST_SIZE // BATCH_SIZE,  # TEST_SIZE
     epochs=EPOCHS,
     shuffle=True,
-    verbose=1,
-    callbacks=[save_pred_callback]
+    verbose=2,
+    callbacks=[cp_callback, save_pred_callback, es_callback]
 )
 #change name of file
-save_history(history, 'C:/Users/120392/Desktop/Training/history/dropout2.txt')
+save_history(history, 'C:/Users/120392/Desktop/Training/final/fd/finalcomp.txt')
 # Evaluate the model on unseen testing data
 print('\n# Evaluate on test data')
 results = MODEL.evaluate(batched_val_data, steps=TEST_SIZE // BATCH_SIZE)

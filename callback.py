@@ -34,6 +34,9 @@ def checkpoint_callback(model, category, *diagnosis):
         else:
             checkpoint_path = "trained_five_Models/" + model + "_" + i + "/cp.ckpt"
         return tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,
+                                                  monitor='val_categorical_accuracy',
+                                                  save_best_only=True,
+                                                  mode='max',
                                                   save_weights_only=True,
                                                   verbose=1,
                                                   )
@@ -46,6 +49,9 @@ def checkpoint_callback(model, category, *diagnosis):
         else:
             checkpoint_path = "trained_binary_Models/" + model + "_" + diagnosis[0] + "_" + i + "/cp.ckpt"
         return tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,
+                                                  monitor='val_categorical_accuracy',
+                                                  save_best_only=True,
+                                                  mode='max',
                                                   save_weights_only=True,
                                                   verbose=1,
                                                   )
@@ -57,11 +63,10 @@ class SavePredCallback(tf.keras.callbacks.Callback):
         self.val_data = val_data
         self.file_path = filepath
 
-    def on_epoch_end(self, epoch, logs={}):
-        file = open(self.file_path, "a")
-        file.write('Epoch :' + str(epoch) + '\n')
+    def on_train_end(self, logs={}):
+        file = open(self.file_path + '.txt', "a")
+        file.write('Epoch :\n')
         batch_counter = 0
-        self.out_log.append(epoch)
         for batch, label_batch in self.val_data:
             file.write("batch :" + str(batch_counter) + '\n')
             for image, label in zip(batch, label_batch):
@@ -81,11 +86,12 @@ def load_saved_pred(filepath):
                 continue
             batches = epoch.split('batch')
             for pred in batches:
-                if not len(epoch.split('batch')) > 1:
+                if not len(pred.split('\n')) > 1:
                     continue
                 single_pred = pred.split('\n')
                 for sp in single_pred:
-                    if len(sp.split('#')) > 1:
+                    if len(sp.split('#')) > 1 and ':' not in sp:
+                        print(sp)
                         value = sp.split('[[')[1].split(']')[0]
                         label = sp.split('#[')[1].split(']')[0]
                         value = re.sub("\s+", ",", value.strip())
@@ -99,18 +105,17 @@ def load_saved_pred(filepath):
             yield prediction, true_label
 
 
-def confusion_matrix(prediction, true_label,confusion_matrix):
-
+def confusion_matrix(prediction, true_label, confusion_matrix):
     if true_label == [1, 0, 0, 0, 0]:
-        confusion_matrix[0] = v_add(confusion_matrix[0],prediction)
+        confusion_matrix[0] = v_add(confusion_matrix[0], prediction)
     elif true_label == [0, 1, 0, 0, 0]:
-        confusion_matrix[1] = v_add(confusion_matrix[1],prediction)
+        confusion_matrix[1] = v_add(confusion_matrix[1], prediction)
     elif true_label == [0, 0, 1, 0, 0]:
-        confusion_matrix[2] = v_add(confusion_matrix[2],prediction)
+        confusion_matrix[2] = v_add(confusion_matrix[2], prediction)
     elif true_label == [0, 0, 0, 1, 0]:
-        confusion_matrix[3] = v_add(confusion_matrix[3],prediction)
+        confusion_matrix[3] = v_add(confusion_matrix[3], prediction)
     elif true_label == [0, 0, 0, 0, 1]:
-        confusion_matrix[4] = v_add(confusion_matrix[4],prediction)
+        confusion_matrix[4] = v_add(confusion_matrix[4], prediction)
     else:
         print('Error Matrix Addition')
 
@@ -118,12 +123,14 @@ def confusion_matrix(prediction, true_label,confusion_matrix):
 
 
 def v_add(vec1, vec2):
-    return [vec1[0]+vec2[0],vec1[1]+vec2[1],vec1[2]+vec2[2],vec1[3]+vec2[3],vec1[4]+vec2[4]]
+    return [vec1[0] + vec2[0], vec1[1] + vec2[1], vec1[2] + vec2[2], vec1[3] + vec2[3], vec1[4] + vec2[4]]
 
 
 def softmax_to_binary_value(prediction):
     index = 0
     value = prediction[0]
+    if value == prediction[1] and value == prediction[2] and value == prediction[3] and value == prediction[4]:
+        return [0,0,0,0,0]
 
     for numbers in range(1, len(prediction)):
         if value < prediction[numbers]:
@@ -137,16 +144,16 @@ def softmax_to_binary_value(prediction):
             prediction[numbers] = 0
 
     return prediction
-"""
-prediction_iter = load_saved_pred('C:/Users/120392/Desktop/Training/history/confusion_matrix.txt')
+
+prediction_iter = load_saved_pred('C:/Users/120392/Desktop/Training/history/final/c2onfusion_matrix.txt')
 
 for pred, label in prediction_iter:
     confusion_matrix2 = [[0, 0, 0, 0, 0],
-                        [0, 0, 0, 0, 0],
-                        [0, 0, 0, 0, 0],
-                        [0, 0, 0, 0, 0],
-                        [0, 0, 0, 0, 0]]
-    for pre, lbl in zip(pred,label):
+                         [0, 0, 0, 0, 0],
+                         [0, 0, 0, 0, 0],
+                         [0, 0, 0, 0, 0],
+                         [0, 0, 0, 0, 0]]
+    for pre, lbl in zip(pred, label):
         confusion_matrix(pre, lbl, confusion_matrix2)
     value_in_matrix = 0
     for row in confusion_matrix2:
@@ -155,4 +162,3 @@ for pred, label in prediction_iter:
             value_in_matrix += x
 
     print(value_in_matrix)
-    """

@@ -276,17 +276,17 @@ with tf.device('/CPU:0'):
 
         def show_binary_prediction(self, prediction, category):
             if category == 'neg':
-                self.prediction_text.append("Probability of Negative: %s \n" % prediction[0, 0])
+                self.prediction_text.append("Probability of Negative: %s %s \n" % (prediction[0, 0], prediction[0,1]))
             elif category == 'bc':
-                self.prediction_text.append("Probability of Benign Calcification: %s \n" % prediction[0, 0])
+                self.prediction_text.append("Probability of Benign Calcification:  %s %s \n" % (prediction[0, 0], prediction[0,1]))
             elif category == 'bm':
-                self.prediction_text.append("Probability of Benign Mass: %s \n" % prediction[0, 0])
+                self.prediction_text.append("Probability of Benign Mass: %s %s \n" % (prediction[0, 0], prediction[0,1]))
             elif category == 'mc':
-                self.prediction_text.append("Probability of Malignant Calcification: %s \n" % prediction[0, 0])
+                self.prediction_text.append("Probability of Malignant Calcification: %s %s \n" % (prediction[0, 0], prediction[0,1]))
             elif category == 'mm':
-                self.prediction_text.append("Probability of Malignant Mass: %s \n" % prediction[0, 0])
+                self.prediction_text.append("Probability of Malignant Mass: %s %s \n" % (prediction[0, 0], prediction[0,1]))
             else:
-                self.prediction_text.append("Probability of ????: %s \n" % prediction[0, 0])
+                self.prediction_text.append("Probability of ????: %s %s \n" % (prediction[0, 0], prediction[0,1]))
 
         def openFileDialog(self):
             fileName, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "",

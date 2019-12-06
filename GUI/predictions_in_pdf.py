@@ -274,8 +274,8 @@ def create_file(file_path, original_file, tr_model_version, model_path):
 if __name__ == '__main__':
     image = 'pictures/non_cropped/mdb136.jpg'
     resize_image_padding(image)
-    create_file('GUI/five.pdf',
+    create_file('GUI/five1.pdf',
                 image,
-                'Model_Version_1_06c',
-                'C:/Users/120392/PycharmProjects/ChurchOfMedium.com/trained_five_Models/Model_Version_1_06c_10-11-2019-H18M08'
+                'Model_Version_1_Final_FD',
+                'C:/Users/120392/PycharmProjects/ChurchOfMedium.com/trained_five_Models/Model_Version_Final_FD_05-12-2019-H22M34'
                 )
