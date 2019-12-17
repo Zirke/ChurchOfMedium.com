@@ -31,7 +31,7 @@ To change dataset set CONTROL_VARIABLE to one of the following:
  - 'MalignantC'
  - 'MalignantM'
 """
-MODEL = Model_Version_Final_FD()
+MODEL = Model_Version_1_Final_FD()
 CONTROL_VARIABLE = 'Five'
 
 path_holder, type_holder, class_holder = main_management(CONTROL_VARIABLE)

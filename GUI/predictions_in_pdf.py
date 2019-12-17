@@ -67,10 +67,10 @@ def create_header(c, model, file_name, width, height):
     c.drawString(width // 4 + 50, height // 4 + 30, str(datetime.datetime.now().date()))
 
     c.drawString(width // 2 - 100, height // 4 - 15, 'Model Version:')
-    c.drawString(width // 2, height // 4 - 15, model)
+    c.drawString(width // 2 - 10, height // 4 - 15, 'Model_Version_Final_FD')
 
     c.drawString(width // 2 - 100, height // 4 - 30, 'Classification:')
-    c.drawString(width // 2, height // 4 - 30, mdl_vers)
+    c.drawString(width // 2-10, height // 4 - 30, mdl_vers)
 
 
 def write_predictons(model, img, y, c, model_pth):
@@ -272,9 +272,9 @@ def create_file(file_path, original_file, tr_model_version, model_path):
 
 
 if __name__ == '__main__':
-    image = 'pictures/non_cropped/mdb136.jpg'
+    image = 'pictures/non_cropped/mdb028.jpg'
     resize_image_padding(image)
-    create_file('GUI/five1.pdf',
+    create_file('GUI/five3.pdf',
                 image,
                 'Model_Version_1_Final_FD',
                 'C:/Users/120392/PycharmProjects/ChurchOfMedium.com/trained_five_Models/Model_Version_Final_FD_05-12-2019-H22M34'
